@@ -1,5 +1,6 @@
 #!/usr/bin/perl
 use strict;
+use CGI qw/param/;
 print "Content-Type: text/html\n\n";
 my $settings = {};
 open(SETTINGS, "/opt/blt/etc/blt-settings.conf");
@@ -56,6 +57,11 @@ while (<DD>) {
 }
 close(DD);
 
+my $start = param("start") || 4000;
+my $lstart = $start + 2000;
+my $rstart = $start - 2000;
+if ($rstart < 2000) { $rstart = 2000; }
+
 print <<EOF
 <html>
 <head>
@@ -69,8 +75,8 @@ print <<EOF
 <div class='title $frozenwarn'>Current screenshot $age seconds ago</div>
 </div>
 <div class='graph'> 
-<img src='plot.cgi'> 
-<div class='title'>Recent audio offset</div>
+<img src='plot.cgi?start=$start'> 
+<div class='title'><a href='index.cgi?start=$lstart'>&lt;</a>  Recent audio offset  <a href='index.cgi?start=$rstart'>&gt;</a></div>
 </div>
 
 <div class='log'>
@@ -83,7 +89,6 @@ $decChange
 This latency tester generates a signal using FFMPEG out of a Blackmagic video card, which has a frame counter burnt into the output<br>
 
 Full details on its purpose and use are <a href='Readme.html'>in the readme</a>
-
 </body></html>
 
 EOF
