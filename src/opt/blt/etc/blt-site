@@ -1,0 +1,7 @@
+Alias /blt /opt/blt/site
+<Directory /opt/blt/site>
+	Options +ExecCGI
+	AddHandler cgi-script .cgi
+	Require all granted
+</Directory>
+

@@ -1,0 +1,15 @@
+#!/bin/bash
+
+
+DATE=`date -Is`
+
+if [[ "x$1" == "xdecode" ]]
+then
+# Decode the current frame's decoder
+	ENCNAME=`/opt/blt/bin/ffmpeg -f rawvideo -vcodec rawvideo -pix_fmt uyvy422 -s 1920x1080 -r 25 -i /var/www/html/work/current.yuv -y  -filter:v "crop=1920:50:0:295" -f apng - 2>/dev/null | tesseract --dpi 300 -l eng - - 2>/dev/null | grep ... | sed -e 's/^[= ]*//' -e 's/[ =*]$//'`
+	echo "$DATE $ENCNAME" >> /var/www/html/work/detected_decoder.log
+else 
+	# Convert to a snapshot picture
+	/opt/blt/bin/ffmpeg -f rawvideo -vcodec rawvideo -pix_fmt uyvy422 -s 1920x1080 -r 25 -i /var/www/html/work/current.yuv -y -f mjpeg /var/www/html/work/$DATE.jpg 2>/dev/null
+fi
+

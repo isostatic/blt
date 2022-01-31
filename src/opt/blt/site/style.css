@@ -1,0 +1,29 @@
+.preview {
+    width: 50%;
+    display: inline-block;
+}
+.preview img {
+    width: 100%;
+}
+.graph {
+    width: 36%;
+    display: inline-block;
+}
+.graph img {
+    width: 100%;
+}
+.title {
+    width: 100%;
+    text-align: center;
+    font-weight: bold;
+}
+.log {
+    width: 100%;
+    text-align: center;
+    
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+.dechist {
+}
+

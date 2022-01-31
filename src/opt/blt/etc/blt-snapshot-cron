@@ -1,0 +1,2 @@
+*/15 * * * * nobody /opt/blt/bin/snapshot
+* * * * * nobody /opt/blt/bin/snapshot decode

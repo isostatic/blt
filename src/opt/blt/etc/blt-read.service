@@ -1,0 +1,11 @@
+[Unit]
+Description=Broadcast Latency Tester - Reader
+WantedBy=multi-user.target
+ 
+[Service]
+Type=simple
+ExecStart=/bin/bash /opt/blt/bin/goblt
+Restart=always
+User=nobody
+Group=nogroup
+WorkingDirectory=/opt/blt/bin

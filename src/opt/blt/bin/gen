@@ -1,0 +1,36 @@
+#!/bin/bash
+cd /opt/blt/bin
+CARD="DeckLink Duo (1)"
+HOST="=== `hostname` ==="
+TOD=1
+. /opt/blt/etc/blt-settings.conf
+
+echo "BLT Generator starting on $CARD/$HOST at `date`, with a TOD adjustment of $TOD"
+./ffmpeg -stream_loop -1 -f lavfi -i "smptehdbars=rate=50:size=1920x1080"  \
+-an \
+-filter_complex "
+drawtext=enable='mod(n,2)':text='Field 1':x=1500:y=100:fontsize=48:fontcolor=white:box=1:boxcolor=black,
+drawtext=enable='not(mod(n,2))':text='Field 2':x=1500:y=100:fontsize=48:fontcolor=white:box=1:boxcolor=black,
+drawtext=text='X':fontcolor=white:box=1:boxcolor=black:boxborderw=50:fontsize=96:y=400:x='400+(mod(round(920*t),920))',
+tinterlace=interleave_top,fieldorder=tff,
+drawtext=text='X':fontcolor=white:box=1:boxcolor=black:boxborderw=50:fontsize=96:y=150:x='400+(mod(round(920*t),920))',
+drawtext=text='Frame %{n}':x=1500:y=200:fontsize=48:fontcolor=white:box=1:boxcolor=black,
+drawtext=text='$HOST':x=(w-tw)/2:y=300:fontsize=48:fontcolor=white:box=1:boxcolor=black,
+drawtext=text='%{localtime\:%Y-%m-%d}':x=(w-tw)/2:y=48+((h-lh)/2):fontsize=48:fontcolor=white:box=1:boxcolor=black,
+drawtext=x=(w-tw)/2:y=96+((h-lh)/2):fontsize=48:fontcolor=white:box=1:boxcolor=black:timecode='tod25':timecode_rate=25:tc24hmax=1,
+drawtext=text='>%{bincode}<':x=630:y=660:fontsize=24:fontcolor=white:box=1:boxcolor=black,
+drawbox=enable='between(mod(n,100),0,15)':x=0:y=0:w=100:h=100:color=red:t=fill,
+drawbox=enable='between(mod(n,100),25,40)':x=100:y=0:w=100:h=100:color=lime:t=fill,
+drawbox=enable='between(mod(n,100),55,70)':x=100:y=0:w=100:h=100:color=lime:t=fill
+;
+aevalsrc=0.2*sin(1000*2*PI*t):s=48000:c=2:n=1920,asplit[il][ir];
+[il]aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=1:channel_layouts=1,volume=enable='
+between(mod(floor(t*1000),4000),0000,600)
+':volume=0 [l];
+[ir]aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=1,volume=enable='
+between(mod(floor(t*1000),4000),1000,1600)+
+between(mod(floor(t*1000),4000),2200,2800)
+':volume=0 [r];
+[l][r]amerge
+" \
+-f decklink -ar 48000 -acodec pcm_s16le -pix_fmt uyvy422 -s 1920x1080 -r 25 -t 1800 "$CARD" > /dev/null 2>&1

@@ -1,0 +1,115 @@
+<h1>Broadcast Latency Tester</h1>
+
+<p><img alt="Block Diagram" src="doc/read.png"/></p>
+
+<h2>Purpose</h2>
+
+<p>The &quot;Broadcast Latency Tester&quot; (BLT) solves two problems</p>
+
+<ol><li>Having a source available with a frame counter, allowing latency comparisons</li><li>Having a source available with GLITS on to measure audio sync</li></ol>
+
+<p>Without having to have expensive proprietary equipment. This will run on any machine with a blackmagic card.</p>
+
+<h2>Usage</h2>
+
+<p>Once installed the BLT generator should run by itself. To use the reader, simply visit the BLT webpage and see the display.</p>
+
+<h3>Measuring audio sync</h3>
+
+<p>Take the output of the BLT and route into a video encoder. Point the encoder at a decoder, and route the decoder back to the BLT. See the webpage to ensure the signal is looping through and the reported audio latency is correct. Leave to run for a few hours.</p>
+
+<p><img alt="Block Diagram" src="doc/bd1.png"/></p>
+
+<p>The BLT can test other SDI signal chain, but it&#39;s main purpose is for measuring IP encode/decode latency and drift</p>
+
+<h3>Measuring video latency (method 1)</h3>
+
+<p>Set up the system as for measuring audio sync, but tee off to two separate monitors</p>
+
+<p><img alt="Block Diagram" src="doc/bd2.png"/></p>
+
+<p>Take a picture of the two identical monitors or multiviewer inputs, subtract the frame count, and that&#39;s your latency. To ensure your monitors are introducing different delays, it&#39;s worth swapping the inputs round just con confirm</p>
+
+<h3>Measuring video latency (method 2)</h3>
+
+<p>This <strong>requires</strong> a calibrated encoder and decoder, but can be used when you don&#39;t have two monitors in the same room/continent</p>
+
+<p><img alt="Block Diagram" src="doc/bd3.png"/></p>
+
+<h3>Measuring change over time</h3>
+
+<p>BLT will log data over time, just look at the graph on the website.</p>
+
+<h2>Details</h2>
+
+<h3>Generator</h3>
+
+<p><img alt="Testcard" src="doc/tc.png"/></p>
+
+<p>Using FFMPEG and a blackmagic card we can create a fairly useful test card</p>
+
+<p>It has the following features</p>
+
+<h4>Left/Right GLITS</h4>
+
+<p><img alt="Left Indicator" src="doc/glits-left.png"/> <img alt="Right Indicator" src="doc/glits-right.png"/></p>
+
+<p>In the top left corner, every 4 seconds, audio vanishes on the left leg and a red square, 100px * 100px, appears. Shortly after audio vanishes on the right leg and a green square appears offset from the left square by 100px. </p>
+
+<p>(The audio isn&#39;t neccersarilly 1kHz / 0dB)</p>
+
+<h4>Moving frame-rate box</h4>
+
+<p><img alt="Frame movement" src="doc/framerate.png"/></p>
+
+<p>The top box moves rightwards every frame, crossing the screen once per second, showing a codec hasn&#39;t frozen</p>
+
+<h4>Moving field-rate box</h4>
+
+<p><img alt="Field movement" src="doc/fieldrate.png"/></p>
+
+<p>The top box moves rightwards every field, crossing the screen once per second, showing if fields are reversed or something else is &quot;off&quot; with them, it should appear smoother than the frame-rate box above</p>
+
+<h4>Field indicator</h4>
+
+<p><img alt="Field Indicator" src="doc/fieldind.png"/></p>
+
+<p>Field 1 or Field 2 is printed on each field, showing if just one field is shown</p>
+
+<h4>Frame counter</h4>
+
+<p>A number since the start increments, one per frame, allowing easy comparison between two different sources with different latencies</p>
+
+<p><img alt="Frame indicator" src="doc/framecounter.png"/></p>
+
+<h4>Time of day</h4>
+
+<p><img alt="TimeOfDay" src="doc/tod.png"/></p>
+
+<p>The time of day of the generating computer. This is based on NTP from the generating machine, however needs calibrating to cope with different cards. The end-to-end latency for an encode+decode process is typically 6 frames, but the output needs calibrating by comparing with a correct time of day source.</p>
+
+<p>The date is encoded in binary underneath (the &lt; and &gt; characters), allowing a reader application to easily decode and calculate end to end delay between different sites without using an excessive amount of CPU OCRing each frame. The time is based on the start time plus the number of displayed frames. This does seem to drift about 1 frame an hour, as such BLT by default automatically restarts the output process every 30 minutes.</p>
+
+<h3>READER</h3>
+
+<p><img alt="Reader webpage" src="doc/read.png"/></p>
+
+<p>A program can be used to decode the testcard, this outputs as a webpage showing the current input picture, and decoding it</p>
+
+<h4>Audio Offset</h4>
+
+<p>This records the time between the audio supposed to be vanishing (at the start of the first frame when solid red is shown in the top left corner), and the audio actually vanishing. This is graphed in blue over the last few hours on the right of the screen and displayed in milliseconds. </p>
+
+<h4>Latency</h4>
+
+<p>This decodes the time of day, there are caveat. The time of day is measured by counting the number of frames from when the decoder changes second to when the received decoder changes second. Latency could be a frame out either way even when calibrated due to clock drift, and assumes both encoder and decoder are synced with NTP</p>
+
+<h2>License</h2>
+
+<p>This program is licensed under GPL, do whatever you want with it (laugh etc), just give back your changes. The C++ code for the Capture program is based on the blackmagic sample code from the decklink drivers, with the license in the header of the files. The modifications to ffmpeg are in <a href="https://github.com/isostatic/FFmpeg">github</a> (because the code is awful and far to embarrasing to mention to geniuses behind ffmpeg). The binaries provided in this repo are built under x64/ubuntu 20.04 with desktopvideo 12.2.2a6</p>
+
+<hr/>
+
+<h1>TODOs</h1>
+
+<ul><li>change ffmpeg to allow encode side calibration</li><li>Manage older log/capture files</li><li>check NTP sync</li><li>Expose older log/capture files</li><li>Make the graph javascript based slippygraph</li><li>overlay changes in detected decoder</li><li>authentication on webpage (based on http header)</li><li>expose and change configuration options from webpage</li><li>Configure from the webpage</li><li>Calibration for audio samples?</li><li>Support more than 1080i25</li></ul>

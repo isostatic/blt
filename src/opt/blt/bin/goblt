@@ -1,0 +1,15 @@
+#!/bin/bash
+LOG=/var/www/html/work/`date -Is`.log
+CURLOG=/var/www/html/work/current.log
+CURYUV=/var/www/html/work/current.yuv
+DEVICE=1
+DEVICEMODE=10
+CALIB=6
+. /opt/blt/etc/blt-settings.conf
+
+
+cd /opt/blt/bin
+echo "$DATE STARTING on Device $DEVICE Mode $DEVICEMODE with a calibration of $CALIB at `date`" > $LOG
+ln -fs $LOG $CURLOG
+unbuffer /opt/blt/bin/BLT -d 1 -m 10 -n 2160000 -b $CALIB -x 90 -r $CURYUV > $LOG 2>&1
+sleep 1
