@@ -1,6 +1,6 @@
 #!/bin/bash
 #sudo apt install gnuplot-nox expect apache2 tesseract-ocr
-. src/opt/blt/etc/blt-settings.conf
+. /opt/blt/etc/blt-settings.conf
 sudo mkdir $WORKDIR
 sudo chmod 777 $WORKDIR
 
