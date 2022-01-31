@@ -11,10 +11,11 @@ echo "BLT Generator starting on $CARD/$HOST at `date`, with a TOD adjustment of 
 -filter_complex "
 drawtext=enable='mod(n,2)':text='Field 1':x=1500:y=100:fontsize=48:fontcolor=white:box=1:boxcolor=black,
 drawtext=enable='not(mod(n,2))':text='Field 2':x=1500:y=100:fontsize=48:fontcolor=white:box=1:boxcolor=black,
-drawtext=text='X':fontcolor=white:box=1:boxcolor=black:boxborderw=50:fontsize=96:y=400:x='400+(mod(round(920*t),920))',
+drawtext=text='X':fontcolor=white:box=1:boxcolor=black:boxborderw=50:fontsize=96:y=420:x='400+(mod(round(920*t),920))',
 tinterlace=interleave_top,fieldorder=tff,
 drawtext=text='X':fontcolor=white:box=1:boxcolor=black:boxborderw=50:fontsize=96:y=150:x='400+(mod(round(920*t),920))',
 drawtext=text='Frame %{n}':x=1500:y=200:fontsize=48:fontcolor=white:box=1:boxcolor=black,
+drawbox=x=0:y=290:w=1920:h=60:color=black:t=fill,
 drawtext=text='$HOST':x=(w-tw)/2:y=300:fontsize=48:fontcolor=white:box=1:boxcolor=black,
 drawtext=text='%{localtime\:%Y-%m-%d}':x=(w-tw)/2:y=48+((h-lh)/2):fontsize=48:fontcolor=white:box=1:boxcolor=black,
 drawtext=x=(w-tw)/2:y=96+((h-lh)/2):fontsize=48:fontcolor=white:box=1:boxcolor=black:timecode='tod25':timecode_rate=25:tc24hmax=1,
