@@ -1,0 +1,10 @@
+Package: bcn-blt
+Version: 1.0.__datestamp__
+Architecture: all
+Maintainer: Paul Weaver <paul@newweaver.com>
+Depends: perl, gnuplot-nox, expect, apache2, tesseract-ocr
+Section: web
+Priority: optional
+Installed-Size: 1000
+Description: Measure audio and video sync in the SDI domain
+
