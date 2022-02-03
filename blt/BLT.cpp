@@ -67,6 +67,7 @@ static BMDConfig        g_config;
 static IDeckLinkInput*    g_deckLinkInput = NULL;
 
 
+static signed int     DEBUG = 0; 
 static signed long    g_lastDecodeTime = 0;
 static signed int     g_lastDecodeTimeFrames = 0;
 static signed long    g_lastRealTime = 0;
@@ -244,10 +245,10 @@ HRESULT DeckLinkBLTDelegate::VideoInputFrameArrived(IDeckLinkVideoInputFrame* vi
             if (g_lastSilenceEnd + 1 == g_video_frameCount) {
                 // Still is silent
                 g_lastSilenceEnd = g_video_frameCount;
-//                printf("DEBUG: %lu Ch1 Should still be silent (%lu -> %lu, %lu)\n", g_video_frameCount, g_lastSilenceStart, g_lastSilenceEnd, g_lastSilenceEnd-g_lastSilenceStart);
+                if (DEBUG > 7) printf("DEBUG: %lu Ch1 Should still be silent (%lu -> %lu, %lu)\n", g_video_frameCount, g_lastSilenceStart, g_lastSilenceEnd, g_lastSilenceEnd-g_lastSilenceStart);
             } else {
                 long calcAudioSample = 1920 * g_video_frameCount;
-//                printf("DEBUG: %lu Ch1 Should be a new silence at audio sample %lu\n", g_video_frameCount, calcAudioSample);
+                if (DEBUG > 7) printf("DEBUG: %lu Ch1 Should be a new silence at audio sample %lu\n", g_video_frameCount, calcAudioSample);
 
                 g_lastSilenceStart = g_video_frameCount;
                 g_lastSilenceEnd = g_video_frameCount;
@@ -255,7 +256,7 @@ HRESULT DeckLinkBLTDelegate::VideoInputFrameArrived(IDeckLinkVideoInputFrame* vi
             }
         } else {
             // Ch1 Should be noisy
-//            printf("DEBUG: %lu Ch1 Should be noisy as luma %lu\n", g_video_frameCount, squareLuma1);
+            if (DEBUG > 7) printf("DEBUG: %lu Ch1 Should be noisy as luma %lu\n", g_video_frameCount, squareLuma1);
         }
         
         g_video_frameCount++;
@@ -279,7 +280,7 @@ HRESULT DeckLinkBLTDelegate::VideoInputFrameArrived(IDeckLinkVideoInputFrame* vi
             afb1++;
 
 
-            if (val1 == 0) {
+            if (val1 > -3 && val1 < 3) {
                 // Silent, but could be transitory
                 long fullSample = (1920*g_audio_frameCount)+sample;
                 g_silentSamples++;
@@ -292,7 +293,7 @@ HRESULT DeckLinkBLTDelegate::VideoInputFrameArrived(IDeckLinkVideoInputFrame* vi
                 if (g_silentSamples > 1000) {
                     // End of silence
                     signed long audioDelay = g_lastAudioSilenceStart - g_lastSilenceStartSample;
-//                    printf("DEBUG: Silence ended after %lu samples, val=%d sample %lu>%lu, should have started at %lu. Delay = %ld samples\n", g_silentSamples, val1, g_lastAudioSilenceStart, g_lastAudioSilenceEnd, g_lastSilenceStartSample, audioDelay);
+                    if (DEBUG > 3) printf("DEBUG: Silence ended after %lu samples, val=%d sample %lu>%lu, should have started at %lu. Delay = %ld samples\n", g_silentSamples, val1, g_lastAudioSilenceStart, g_lastAudioSilenceEnd, g_lastSilenceStartSample, audioDelay);
                     time_t rawtime;
                     struct tm *info;
                     char buffer[80];
@@ -303,6 +304,9 @@ HRESULT DeckLinkBLTDelegate::VideoInputFrameArrived(IDeckLinkVideoInputFrame* vi
                     long msDelay = round(audioDelay/48);
                     printf("INFO: %s> Current audio delay %ld samples (%ld ms). Current Calibrated Video Latency %ld frames (%ld). \n", buffer, audioDelay, msDelay, g_currentLatency, g_frameCalibration);
                     g_audioDelay = audioDelay;
+                } else if (g_silentSamples > 5) {
+                    signed long audioDelay = g_lastAudioSilenceStart - g_lastSilenceStartSample;
+                    if (DEBUG > 3) printf("DEBUG: Silence ended too soon after %lu samples, val=%d sample %lu>%lu, should have started at %lu. Delay = %ld samples\n", g_silentSamples, val1, g_lastAudioSilenceStart, g_lastAudioSilenceEnd, g_lastSilenceStartSample, audioDelay);
                 }
                 g_silentSamples = 0;
             }
