@@ -23,6 +23,12 @@ my $frozenwarn = "";
 if ($age > 30) {
     $frozenwarn = "frozen";
 }
+my $genlockState = `/opt/blt/bin/testgenlock`;
+$genlockState =~ s/Reference: //;
+my $genlockCSS = "";
+if ($genlockState =~ /NONE/) { $genlockCSS = "nogenlock"; }
+if ($genlockState =~ /Locked/) { $genlockCSS = "genlock"; }
+my $genlock = "<span class='$genlockCSS'>Genlock state: $genlockState</span>";
 
 open(L, "tail $SET_log|");
 my $out = "";
@@ -33,7 +39,7 @@ while (<L>) {
         my $audioMS = int($2 / 48);
         my $lead = "leading";
         if ($audioMS > 0) { $lead = "trailing"; }
-        $out = "At $1, audio is $lead by <b>${audioMS}ms</b> ($2 samples). <br>";
+        $out = "At $1, audio is $lead by <b>${audioMS}ms</b> ($2 samples). $genlock<br>";
         $out .= "Video latency calculated at $totVid, with a built in calibration of $4 frames meaning latency = <b>$3 frames</b>, but this relies on various factors.<br>";
     }
 }
@@ -59,12 +65,12 @@ close(DD);
 
 my $start = param("start") || 4000;
 my $num = param("num") || 4000;
-my $lstart = $start + 2000;
-my $rstart = $start - 2000;
-if ($rstart < 2000) { $rstart = 2000; }
+my $lstart = $start + $num;
+my $rstart = $start - $num;
+if ($rstart < $num) { $rstart = $num; }
 
-my $lnum = $num + 2000;
-my $rnum = $num - 2000;
+my $lnum = int($num * 1.5);
+my $rnum = int(($num+2) / 1.5);
 my $zlstart = $start;
 my $zrstart = $start;
 if ($zlstart < $lnum) { $zlstart = $lnum; }
@@ -95,7 +101,7 @@ $decChange
 <p>
 This latency tester generates a signal using FFMPEG out of a Blackmagic video card, which has a frame counter burnt into the output<br>
 
-Full details on its purpose and use are <a href='Readme.html'>in the readme</a>
+Full details on its purpose and use are <a href='README.html'>in the readme</a>
 </body></html>
 
 EOF

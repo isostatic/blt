@@ -27,3 +27,13 @@
 .dechist {
 }
 
+.nogenlock {
+    background: red;
+    color: white;
+    padding: 0px 2px;
+}
+.genlock {
+    background: green;
+    color: white;
+    padding: 0px 2px;
+}
