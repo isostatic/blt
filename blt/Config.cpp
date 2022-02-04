@@ -60,7 +60,8 @@ BMDConfig::BMDConfig() :
 	m_videoFrameDump(),
 	m_audioOutputFile(),
 	m_deckLinkName(),
-	m_displayModeName()
+	m_displayModeName(),
+	m_doGenlock(0)
 {
 }
 
@@ -78,7 +79,7 @@ bool BMDConfig::ParseArguments(int argc,  char** argv)
 	int		ch;
 	bool	displayHelp = false;
 
-	while ((ch = getopt(argc, argv, "d:?h3c:s:v:a:m:n:p:t:b:x:r:")) != -1)
+	while ((ch = getopt(argc, argv, "d:?h3c:s:v:a:m:n:p:t:b:x:r:g:")) != -1)
 	{
 		switch (ch)
 		{
@@ -88,6 +89,9 @@ bool BMDConfig::ParseArguments(int argc,  char** argv)
 
 			case 'm':
 				m_displayModeIndex = atoi(optarg);
+				break;
+			case 'g':
+				m_doGenlock = atoi(optarg);
 				break;
 
 			case 'c':
@@ -465,6 +469,7 @@ bail:
 		"    -b <frames>          Calibrate Internal Latency for latency measurement (Default is 6)\n"
 		"    -x <every_frames>    Dump the video frame every X frames (default none)\n"
 		"    -r <filename>        Filename a single frame will be written to every X frames\n"
+		"    -g 1                 Detect Genlock presence and exit\n"
 		"\n"
 	);
 

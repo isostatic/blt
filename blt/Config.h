@@ -62,6 +62,7 @@ public:
 	int						m_maxFrames;
 	unsigned int					m_dumpEvery;
 	unsigned int					m_latencyCalibrate;
+        bool                                            m_doGenlock;
 
 	BMDVideoInputFlags		m_inputFlags;
 	BMDPixelFormat			m_pixelFormat;

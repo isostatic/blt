@@ -65,6 +65,7 @@ static bool                g_do_exit = false;
 static BMDConfig        g_config;
 
 static IDeckLinkInput*    g_deckLinkInput = NULL;
+static IDeckLinkOutput*   g_deckLinkOutput = NULL;
 
 
 static signed int     DEBUG = 0; 
@@ -437,6 +438,38 @@ int main(int argc, char *argv[])
     if (deckLink == NULL)
     {
         fprintf(stderr, "Unable to get DeckLink device %u\n", g_config.m_deckLinkIndex);
+        goto bail;
+    }
+
+    // Check the Genlock status
+    if (g_config.m_doGenlock == 1) {
+        result = deckLink->QueryInterface(IID_IDeckLinkOutput, (void**)&g_deckLinkOutput);
+        if (result == S_OK)
+        {
+            BMDReferenceStatus reference_status;
+            if (g_deckLinkOutput->GetReferenceStatus(&reference_status) != S_OK)
+            {
+                printf("ERROR Can't read reference status\n");
+                exitStatus = 3;
+                goto bail;
+            }
+            if (reference_status == 0) {
+                printf("Reference: NONE\n");
+                exitStatus = 2;
+            } else if (reference_status & bmdReferenceNotSupportedByHardware) {
+                printf("Reference: Not Supported\n");
+                exitStatus = 3;
+            } else if (reference_status & bmdReferenceLocked) {
+                printf("Reference: Locked\n");
+                exitStatus = 0;
+            } else {
+                printf("Reference: Unknown (%d)\n", reference_status);
+                exitStatus = 3;
+            }
+            goto bail;
+        }
+        printf("ERROR getting Decklink Output\n");
+        exitStatus = 3;
         goto bail;
     }
 
