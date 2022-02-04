@@ -141,7 +141,7 @@ HRESULT DeckLinkBLTDelegate::VideoInputFrameArrived(IDeckLinkVideoInputFrame* vi
 
         // Should we be saving this?
         if (g_videoOutputFile != -1) {
-            printf("DEBUG: Dumping YUV to file\n");
+//            printf("DEBUG: Dumping YUV to file\n");
             write(g_videoOutputFile, frameBytes, videoFrame->GetRowBytes() * videoFrame->GetHeight());
         }
         long squareLuma1 = 0;
@@ -276,7 +276,7 @@ HRESULT DeckLinkBLTDelegate::VideoInputFrameArrived(IDeckLinkVideoInputFrame* vi
         audioFrame->GetBytes(&audioFrameBytes);
         // Should we be saving this?
         if (g_audioOutputFile != -1) {
-            printf("DEBUG: Dumping PCM to file\n");
+//            printf("DEBUG: Dumping PCM to file\n");
             write(g_audioOutputFile, audioFrameBytes, audioFrame->GetSampleFrameCount() * g_config.m_audioChannels * (g_config.m_audioSampleDepth / 8));
         }
         short* afb1 = (short*)(audioFrameBytes);
