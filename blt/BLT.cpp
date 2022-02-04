@@ -138,6 +138,12 @@ HRESULT DeckLinkBLTDelegate::VideoInputFrameArrived(IDeckLinkVideoInputFrame* vi
         // As such, add the Lumas of the pixels together
         videoFrame->GetBytes(&frameBytes);
         char* fb1 = (char*)(frameBytes);
+
+        // Should we be saving this?
+        if (g_videoOutputFile != -1) {
+            printf("DEBUG: Dumping YUV to file\n");
+            write(g_videoOutputFile, frameBytes, videoFrame->GetRowBytes() * videoFrame->GetHeight());
+        }
         long squareLuma1 = 0;
         long squareLuma2 = 0;
         for (int line = 1; line <= 1080; line++) {
@@ -268,6 +274,11 @@ HRESULT DeckLinkBLTDelegate::VideoInputFrameArrived(IDeckLinkVideoInputFrame* vi
     {
 
         audioFrame->GetBytes(&audioFrameBytes);
+        // Should we be saving this?
+        if (g_audioOutputFile != -1) {
+            printf("DEBUG: Dumping PCM to file\n");
+            write(g_audioOutputFile, audioFrameBytes, audioFrame->GetSampleFrameCount() * g_config.m_audioChannels * (g_config.m_audioSampleDepth / 8));
+        }
         short* afb1 = (short*)(audioFrameBytes);
         short* afb2 = (short*)(audioFrameBytes);
         
@@ -281,7 +292,8 @@ HRESULT DeckLinkBLTDelegate::VideoInputFrameArrived(IDeckLinkVideoInputFrame* vi
             afb1++;
 
 
-            if (val1 > -3 && val1 < 3) {
+            // Value is between 32k to 32k. Some decoders decode silence as zero, others vary. Appear can bobble along upto 100. Actual tone is going to the thousands, so assuming anything 0 +/- 300 should be silent -- if it's tone it won't stay there fore many samples, at 1khz it has a full sine wave in 48 samples and goes upto thousands
+            if (val1 > -300 && val1 < 300) {
                 // Silent, but could be transitory
                 long fullSample = (1920*g_audio_frameCount)+sample;
                 g_silentSamples++;
@@ -303,7 +315,7 @@ HRESULT DeckLinkBLTDelegate::VideoInputFrameArrived(IDeckLinkVideoInputFrame* vi
                     strftime(buffer,80,"%Y-%m-%d %H:%M:%S %Z", info);
 //                    printf("%s: ", buffer);
                     long msDelay = round(audioDelay/48);
-                    printf("INFO: %s> Current audio delay %ld samples (%ld ms). Current Calibrated Video Latency %ld frames (%ld). \n", buffer, audioDelay, msDelay, g_currentLatency, g_frameCalibration);
+                    printf("INFO: %s> Current audio delay %ld samples (%ld ms). Current Calibrated Video Latency %d frames (%d). \n", buffer, audioDelay, msDelay, g_currentLatency, g_frameCalibration);
                     g_audioDelay = audioDelay;
                 } else if (g_silentSamples > 5) {
                     signed long audioDelay = g_lastAudioSilenceStart - g_lastSilenceStartSample;
