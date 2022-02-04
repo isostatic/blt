@@ -45,23 +45,33 @@ while (<L>) {
 }
 close(L);
 
-open(DD, $SET_detdec);
+open(DD, "$SET_detdec");
 my $curDec = "";
 my $decChange = "";
+my @lines;
 while (<DD>) {
-    my ($dte, $dec) = split(/ /);
+    next unless /([^ ]+) (.*)/;
+    my $dte = $1; my $dec = $2;
+    $dte =~ s/T/ /;
+    $dte =~ s/\+/ +/;
+    if ($dec =~ /NOTE: (.*)/) {
+        push(@lines, "$dte Manually entered event: $1<br>");
+        next;
+    }
     $dec =~ s/\s*$//;
     $dec =~ s/^i//; # Sometimes the decoder outputs an i at the start
     next if ($dec !~ /[a-zA-Z]/); # Decoder failed to decode
     if ($dec ne $curDec) {
-        $dte =~ s/T/ /;
-        $dte =~ s/\+/ +/;
-        $dte =~ s/\-/ -/;
-        $decChange .= "$dte switch from '$curDec' to '$dec'<br>";
+        push(@lines, "$dte switch from '$curDec' to '$dec'<br>");
         $curDec = $dec;
     }
 }
 close(DD);
+
+# Show latest 5 events
+for (my $i = ($#lines); $i > $#lines-5; $i--) {
+    $decChange .= $lines[$i] if ($i);
+}
 
 my $start = param("start") || 4000;
 my $num = param("num") || 4000;
@@ -98,6 +108,7 @@ $out
 <div class='dechist'>
 $decChange
 </div>
+<form action='makeNote.cgi' method='GET'><input name='note'><input type='submit' value="Add Note"></form>
 <p>
 This latency tester generates a signal using FFMPEG out of a Blackmagic video card, which has a frame counter burnt into the output<br>
 
