@@ -21,3 +21,5 @@ else
 fi
 
 sudo chmod 777 /opt/blt/work/
+sudo chmod 777 /opt/blt/site/
+sudo chmod 644 /opt/blt/etc/blt-snapshot-cron
