@@ -6,7 +6,7 @@ NAME=appapp
 
 DATE=`date +"%Y%m%d-%H%M%S"`
 TMPDIR=`mktemp -d `
-SUBDIR="$DATE-$NAME"
+SUBDIR="smp-$DATE-$NAME"
 mkdir -p $TMPDIR/$SUBDIR
 
 SECS=$(($FRAMES/25))
