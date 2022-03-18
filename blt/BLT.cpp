@@ -146,6 +146,7 @@ HRESULT DeckLinkBLTDelegate::VideoInputFrameArrived(IDeckLinkVideoInputFrame* vi
         }
         long squareLuma1 = 0;
         long squareLuma2 = 0;
+        // Calculate latency from the binary encoded time of day
         for (int line = 1; line <= 1080; line++) {
             // A "sample" is UYVY - making up 2 pixels, as it's 4:2:2 8 bit.
 //            if (line > 650 && line < 690) { printf("LINE %d: ", line + 1); }
@@ -246,6 +247,9 @@ HRESULT DeckLinkBLTDelegate::VideoInputFrameArrived(IDeckLinkVideoInputFrame* vi
 //	int op = open("/tmp/test.uyvy", O_WRONLY|O_CREAT|O_TRUNC, 0664);
 //	write(op, frameBytes, videoFrame->GetRowBytes() * videoFrame->GetHeight());
 //	close(op);
+
+
+        // Now calculate sync
         // If Silence, squareLuma1 will be 801900, if noisy it will be 1029600
         if (squareLuma1 > 700000 && squareLuma1 < 900000) {
             // Ch1 Should be silent
@@ -255,7 +259,7 @@ HRESULT DeckLinkBLTDelegate::VideoInputFrameArrived(IDeckLinkVideoInputFrame* vi
                 if (DEBUG > 7) printf("DEBUG: %lu Ch1 Should still be silent (%lu -> %lu, %lu)\n", g_video_frameCount, g_lastSilenceStart, g_lastSilenceEnd, g_lastSilenceEnd-g_lastSilenceStart);
             } else {
                 long calcAudioSample = 1920 * g_video_frameCount;
-                if (DEBUG > 7) printf("DEBUG: %lu Ch1 Should be a new silence at audio sample %lu\n", g_video_frameCount, calcAudioSample);
+                if (DEBUG > 5) printf("DEBUG: %lu Ch1 Should be a new silence at audio sample %lu\n", g_video_frameCount, calcAudioSample);
 
                 g_lastSilenceStart = g_video_frameCount;
                 g_lastSilenceEnd = g_video_frameCount;
@@ -263,7 +267,7 @@ HRESULT DeckLinkBLTDelegate::VideoInputFrameArrived(IDeckLinkVideoInputFrame* vi
             }
         } else {
             // Ch1 Should be noisy
-            if (DEBUG > 7) printf("DEBUG: %lu Ch1 Should be noisy as luma %lu\n", g_video_frameCount, squareLuma1);
+            if (DEBUG > 6) printf("DEBUG: %lu Ch1 Should be noisy as luma %lu\n", g_video_frameCount, squareLuma1);
         }
         
         g_video_frameCount++;
