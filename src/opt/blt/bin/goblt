@@ -11,5 +11,5 @@ CALIB=6
 cd /opt/blt/bin
 echo "$DATE STARTING on Device $DEVICE Mode $DEVICEMODE with a calibration of $CALIB at `date`" > $LOG
 ln -fs $LOG $CURLOG
-unbuffer /opt/blt/bin/BLT -d 1 -m 10 -n 2160000 -b $CALIB -x 90 -r $CURYUV > $LOG 2>&1
+unbuffer /opt/blt/bin/BLT -d $DEVICE -m $DEVICEMODE -n 2160000 -b $CALIB -x 90 -r $CURYUV > $LOG 2>&1
 sleep 1

@@ -4,6 +4,8 @@ CARD="DeckLink Duo (1)"
 HOST="=== `hostname` ==="
 TOD=0
 FRATE=25
+# How many seconds to run for before restarting
+LENGTH=1800
 
 . /opt/blt/etc/blt-settings.conf
 
@@ -50,4 +52,4 @@ between(mod(floor(t*1000),4000),2200,2800)
 ':volume=0 [r];
 [l][r]amerge
 " \
--f decklink -ar 48000 -acodec pcm_s16le -pix_fmt uyvy422 -s 1920x1080 -r $PIRATE -t 1800 "$CARD" > /dev/null 2>&1
+-f decklink -ar 48000 -acodec pcm_s16le -pix_fmt uyvy422 -s 1920x1080 -r $PIRATE -t $LENGTH "$CARD" > /dev/null 2>&1
