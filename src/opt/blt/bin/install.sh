@@ -4,6 +4,10 @@
 sudo mkdir -p $WORKDIR
 sudo chmod 777 $WORKDIR
 
+sudo ln -s /opt/blt/etc/blt-sudoers /etc/sudoers.d/
+sudo chown root:root /opt/blt/etc/blt-sudoers
+sudo chmod 400 /opt/blt/etc/blt-sudoers
+
 sudo ln -fs /opt/blt/etc/blt-gen.service /etc/systemd/system/ && sudo systemctl daemon-reload
 sudo ln -fs /opt/blt/etc/blt-read.service /etc/systemd/system/ && sudo systemctl daemon-reload
 sudo systemctl start blt-gen.service

@@ -1,0 +1,1 @@
+www-data ALL = NOPASSWD : /opt/blt/bin/recordSample.sh
