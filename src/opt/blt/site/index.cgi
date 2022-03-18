@@ -85,6 +85,21 @@ my $zlstart = $start;
 my $zrstart = $start;
 if ($zlstart < $lnum) { $zlstart = $lnum; }
 
+my @recs;
+opendir(D,"/opt/blt/site/");
+foreach (readdir(D)) {
+	my $dir = $_;
+	next unless $dir =~ /^smp-([0-9]{4})([0-9]{2})([0-9]{2})-([0-9]{2})([0-9]{2})([0-9]{2})-(.*)/;
+	my $dte = "$1-$2-$3"; my $time = "$4:$5:$6"; my $name = $7;
+	push(@recs,"<li><a href='./$dir'>$dte $time $name</a></li>");
+}
+closedir(D);
+my $recordings = "<ul>";
+foreach (reverse sort @recs) {
+	$recordings .= "$_\n";
+}
+$recordings .= "</ul>";
+
 print <<EOF
 <html>
 <head>
@@ -109,6 +124,11 @@ $out
 $decChange
 </div>
 <form action='makeNote.cgi' method='GET'><input name='note'><input type='submit' value="Add Note"></form>
+<p>
+<a href='./latestRecording'>Latest recording</a>
+$recordings
+<a href='doRecording.cgi?e'>Do recording</a>
+</p>
 <p>
 This latency tester generates a signal using FFMPEG out of a Blackmagic video card, which has a frame counter burnt into the output<br>
 

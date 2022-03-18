@@ -56,4 +56,4 @@ echo /opt/blt/site/$SUBDIR
 rm -f /opt/blt/site/latestRecording
 ln -fs  /opt/blt/site/$SUBDIR /opt/blt/site/latestRecording
 
-#rm -rf $TMPDIR
+rm -rf $TMPDIR
