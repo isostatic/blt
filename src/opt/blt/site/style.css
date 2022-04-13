@@ -37,3 +37,11 @@
     color: white;
     padding: 0px 2px;
 }
+#rtc {
+    width: 200px;
+    text-align: center;
+}
+#thetime {
+    font-family: monospace
+}
+

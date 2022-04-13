@@ -104,6 +104,7 @@ print <<EOF
 <html>
 <head>
 <link href="style.css" rel="stylesheet" />
+<script src='src.js'></script>
 </head>
 <body>
 <h1>Broadcast Latency Tester</h1>
@@ -124,6 +125,7 @@ $out
 $decChange
 </div>
 <form action='makeNote.cgi' method='GET'><input name='note'><input type='submit' value="Add Note"></form>
+<div id='rtc'> <span id='thetime'>XX:XX:XX:XX+XXms</span> <button id='toggleTime' onclick='toggleTime()'>Start Time</button> </div>
 <p>
 <a href='./latestRecording'>Latest recording</a>
 $recordings
