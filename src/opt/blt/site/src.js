@@ -6,10 +6,25 @@ function toggleTime() {
         startTime();
     }
 }
+function checkNTP() {
+    document.getElementById('checkNTP').innerHTML = "";
+    document.getElementById('ntpres').innerHTML = "Checking NTP...";
+    var request = new XMLHttpRequest();
+    console.log(request);
+    request.onreadystatechange = function () {
+        if ( request.readyState === 4 ) { 
+            document.getElementById('ntpres').innerHTML = request.responseText;
+        }
+    };
+    request.open("GET", "ntp.cgi");
+    request.send();
+}
 function stopTime() {
     runClock = 0;
-    document.getElementById('toggleTime').innerHTML = "Start Clock";
-    document.getElementById('thetime').innerHTML = "..:..:..:..+..ms";
+    if (document.getElementById('thetime')) {
+        document.getElementById('toggleTime').innerHTML = "Start Clock";
+        document.getElementById('thetime').innerHTML = "..:..:..:..+..ms";
+    }
 }
 function startTime() {
     runClock = 1;

@@ -39,7 +39,7 @@ while (<L>) {
         my $audioMS = int($2 / 48);
         my $lead = "leading";
         if ($audioMS > 0) { $lead = "trailing"; }
-        $out = "At $1, audio is $lead by <b>${audioMS}ms</b> ($2 samples). $genlock<br>";
+        $out = "At $1 (<a onclick='checkNTP();' href='#' id='checkNTP'>Check with NTP</a><span id='ntpres'></span>), audio is $lead by <b>${audioMS}ms</b> ($2 samples). $genlock<br>";
         $out .= "Video latency calculated at $totVid, with a built in calibration of $4 frames meaning latency = <b>$3 frames</b>.";
 	if ($3 < 0) {
 		$out .= "<br>This either meanst he calibration is off, or the sender's clock isn't synced to the same source as this clock<br>"
