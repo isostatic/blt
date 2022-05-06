@@ -73,7 +73,7 @@ static signed long    g_lastDecodeTime = 0;
 static signed int     g_lastDecodeTimeFrames = 0;
 static signed long    g_lastRealTime = 0;
 static signed int     g_lastRealTimeFrames = 0;
-static unsigned int     g_currentLatency = 0;
+static signed int     g_currentLatency = 0;
 static signed int     g_frameCalibration = 6; // number of frames the entire process takes for a Blackmagic->Blackmagic plugged directly together
 
 static unsigned long    g_video_frameCount = 0;
