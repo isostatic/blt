@@ -34,13 +34,16 @@ open(L, "tail $SET_log|");
 my $out = "";
 while (<L>) {
     # INFO: 2022-01-27 16:47:57 GMT> Current audio delay 373 samples (7 ms). Current Calibrated Video Latency 8 frames (6). 
-    if (/INFO: (....-..-.. ..:..:.. ...)> Current audio delay ([-0-9]+) samples.*Current Calibrated Video Latency ([0-9]+) frames \(([0-9]+)\)/) {
+    if (/INFO: (....-..-.. ..:..:.. ...)> Current audio delay ([-0-9]+) samples.*Current Calibrated Video Latency ([\-0-9]+) frames \(([0-9]+)\)/) {
         my $totVid = $3 + $4;
         my $audioMS = int($2 / 48);
         my $lead = "leading";
         if ($audioMS > 0) { $lead = "trailing"; }
         $out = "At $1, audio is $lead by <b>${audioMS}ms</b> ($2 samples). $genlock<br>";
-        $out .= "Video latency calculated at $totVid, with a built in calibration of $4 frames meaning latency = <b>$3 frames</b>, but this relies on various factors.<br>";
+        $out .= "Video latency calculated at $totVid, with a built in calibration of $4 frames meaning latency = <b>$3 frames</b>.";
+	if ($3 < 0) {
+		$out .= "<br>This either meanst he calibration is off, or the sender's clock isn't synced to the same source as this clock<br>"
+	}
     }
 }
 close(L);
