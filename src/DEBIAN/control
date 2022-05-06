@@ -2,7 +2,7 @@ Package: bcn-blt
 Version: 1.0.__datestamp__
 Architecture: all
 Maintainer: Paul Weaver <paul@newweaver.com>
-Depends: perl, gnuplot-nox, expect, apache2, tesseract-ocr, bc, ntpdate
+Depends: perl, gnuplot-nox, expect, apache2, tesseract-ocr, bc, ntpdate, libcrystalhd3, libcgi-session-perl, libxcb-shape0, libva2, libx264-155, libva-drm2, libva-x11-2, libvdpau1
 Section: web
 Priority: optional
 Installed-Size: 1000
