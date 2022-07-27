@@ -10,8 +10,55 @@ The "Broadcast Latency Tester" (BLT) solves two problems
 
 Without having to have expensive proprietary equipment. This will run on any machine with a blackmagic card.
 
+## Installation
+
+To install bcn, use Ubuntu 20.04 and install the blt package. Also install the Blackmagic drivers - 12.2 is a good year. Update the firmware and reboot. 
+
+Run ```sudo /opt/blt/bin/install.sh```
+
+
+Run ```/opt/blt/bin/BLT``` to get the name of the card and output you want, the below assumes you're using a Decklink Duo 2
+
+```
+You must select a device
+Usage: BLT -d <device id> -m <mode id> [OPTIONS]
+
+    -d <device id>:
+         0: DeckLink Duo (1)
+         1: DeckLink Duo (2)
+         2: DeckLink Duo (3) (inactive)
+         3: DeckLink Duo (4) (inactive)
+```
+
+You then need to edit the file /opt/blt/etc/blt-settings.conf
+
+```CARD="DeckLink Duo (1)"```
+
+Set this to the value above
+
+```FRATE=25```
+
+At some point I'll work out how to do 30000/1001 framerates, and perhaps (easier) 50fps
+
+```TOD=1000```
+
+This is a value to allow syncing the output of the time to ensure that the displayed time is accurate
+
+```DEVICE=1```
+
+The SDI output from above (BLT) to use
+
+```DEVICEMODE=11```
+
+This varies depending on the card, run ```/opt/blt/bin/BLT -d 0``` (where 0 is the output device) to see the format, you'll want 1080i50 (other formats won't work)
+
+```CALIB=0```
+This is to calibrate the read part of BLT. First calibrate the generation part, then pump BLT output into itself, and set the value to get the delay down to zero
+
+
 ## Usage
 Once installed the BLT generator should run by itself. To use the reader, simply visit the BLT webpage and see the display.
+
 
 ### Measuring audio sync
 
