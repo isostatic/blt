@@ -1,6 +1,5 @@
 [Unit]
 Description=Broadcast Latency Tester - Reader
-WantedBy=multi-user.target
  
 [Service]
 Type=simple
@@ -9,3 +8,6 @@ Restart=always
 User=nobody
 Group=nogroup
 WorkingDirectory=/opt/blt/bin
+
+[Install]
+WantedBy=multi-user.target
