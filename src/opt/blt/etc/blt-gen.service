@@ -1,5 +1,6 @@
 [Unit]
 Description=Broadcast Latency Tester - Generator
+WantedBy=multi-user.target
  
 [Service]
 Type=simple
