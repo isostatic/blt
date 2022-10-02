@@ -45,7 +45,7 @@ drawbox=enable='between(mod(n,$BEEPEVERY),0,15)':x=0:y=0:w=100:h=100:color=red:t
 drawbox=enable='between(mod(n,$BEEPEVERY),25,40)':x=100:y=0:w=100:h=100:color=lime:t=fill,
 drawbox=enable='between(mod(n,$BEEPEVERY),55,70)':x=100:y=0:w=100:h=100:color=lime:t=fill
 ;
-aevalsrc=0.11*sin(1000*2*PI*t):s=48000:c=2:n=1920,asplit=16[il][ir][ic3][ic4][ic5][ic6][ic7][ic8][ic9][ic10][ic11][ic12][ic13][ic14][ic15][ic16];
+aevalsrc=0.128*sin(1000*2*PI*t):s=48000:c=2:n=1920,asplit=16[il][ir][ic3][ic4][ic5][ic6][ic7][ic8][ic9][ic10][ic11][ic12][ic13][ic14][ic15][ic16];
 [il]aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=1,volume=enable='
 between(mod(floor(t*1000),4000),0000,600)
 ':volume=0 [l];
