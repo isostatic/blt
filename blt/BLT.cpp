@@ -439,6 +439,8 @@ int main(int argc, char *argv[])
     char*                            displayModeName = NULL;
     bool                            supported;
 
+    IDeckLinkConfiguration *deckLinkConfiguration = NULL;
+
     DeckLinkBLTDelegate*        delegate = NULL;
 
     pthread_mutex_init(&g_sleepMutex, NULL);
@@ -462,6 +464,17 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Unable to get DeckLink device %u\n", g_config.m_deckLinkIndex);
         goto bail;
     }
+
+    if (deckLink->QueryInterface(IID_IDeckLinkConfiguration, (void **)&deckLinkConfiguration) != S_OK) {
+        printf("Could not get the IDeckLinkConfiguration interface\n");
+        deckLinkConfiguration = NULL;
+        goto bail;
+    }
+    result = deckLinkConfiguration->SetInt(0x64757078, 0x66647570);
+    if (FAILED(result))
+        printf("Can't force decklink to full duplex");
+    else
+        printf("Force decklink to full duplex");
 
     // Check the Genlock status
     if (g_config.m_doGenlock == 1) {
