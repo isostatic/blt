@@ -37,21 +37,18 @@ while (<L>) {
     if (/INFO: (....-..-.. ..:..:.. ...)> Current audio delay ([-0-9]+) samples.*Current Calibrated Video Latency ([-0-9]+) frames \(([-0-9]+)\)/) {
         my $totVid = $3 + $4;
         my $audioMS = int($2 / 48);
-        my $lead = "leading";
-        if ($audioMS > 0) { $lead = "trailing"; }
+        my $lead = "trailing";
+        my $audioLeadWarning = "";
+        if ($audioMS < 0) { $lead = "leading"; $audioMS = 0-$audioMS; $audioLeadWarning = "<span class='error'>Audio is ahead of video by ${audioMS}ms</span>"; }
 	my $neglat = "";
-        $out = "At $1, audio is $lead by <b>${audioMS}ms</b> ($2 samples). $genlock<br>";
+        $out = "At $1, audio is $lead by <b>${audioMS}ms</b> ($2 samples). $audioLeadWarning. $genlock<br>";
 	if ($3 < 0) { 
-		$neglat = "<br>Obviously we can't have negative latency, so something isn't calibrated right or the clock is off."; 
-		if (-x "/usr/sbin/ntpdate") {
-			my $r = `/usr/sbin/ntpdate -q pool.ntp.org | grep offset`;
-			if ($r =~ /offset ([0-9.]+) sec/) {
-				my $ms = int(1000*$1);
-				$neglat .= " NTP puts this clock as being ${ms}ms off";
-			}
-		}
+		$neglat = "<br>Obviously we can't have negative latency, so something isn't calibrated right or the clock is off. <span class='ntp'>checking NTP...</span>"; 
 	}
         $out .= "Video latency calculated at $totVid, with a built in calibration of $4 frames meaning latency = <b>$3 frames</b>, but this relies on various factors. $neglat<br>";
+	if ($totVid > 50) { 
+		$out .= "That's insanely high, <span class='ntp'>checking NTP...</span>";
+	}
     }
 }
 close(L);
@@ -114,8 +111,9 @@ $recordings .= "</ul>";
 print <<EOF
 <html>
 <head>
-<link href="style.css" rel="stylesheet" />
-<script src='src.js'></script>
+<link href="style.css?s" rel="stylesheet" />
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script> 
+<script src='src.js?w'></script>
 </head>
 <body>
 <h1>Broadcast Latency Tester</h1>

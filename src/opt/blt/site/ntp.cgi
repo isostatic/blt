@@ -5,7 +5,7 @@ my $cmd = "ntpdate -q pool.ntp.org";
 my $res = "Failure checking NTP";
 open(F, "$cmd|");
 while (<F>) {
-   if (/adjust time server ([^ ]*) offset ([\-0-9\.]*) sec/) {
+   if (/time server ([^ ]*) offset ([\-0-9\.]*)/) {
         my $svr = $1;
         my $sec = $2;
         my $ms = $2 * 1000;

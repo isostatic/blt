@@ -27,6 +27,12 @@
 .dechist {
 }
 
+
+.error {
+    font-weight: bolder;
+    font-size: larger;
+}
+
 .nogenlock {
     background: red;
     color: white;
