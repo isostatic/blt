@@ -69,10 +69,25 @@ my $bltReader = "Not Found";
 my $bltGen = "Not Found";
 open(PS, "/bin/ps aux|");
 while(<PS>) {
-	if (s/.* .opt.blt.bin.BLT/BLT/g) { $bltReader = "Running: <code>$_</code>"; }
-	if (/ffmpeg.*Field.rate/) { s/.*ffmpeg /ffmpeg /; s/-an -filter.*uyvy422/ ..... /; $bltGen = "Running: <code>$_</code>"; }
+	if (s/.* .opt.blt.bin.BLT/BLT/g) { $bltReader = "<b>Running</b>: <code>$_</code>"; }
+	if (/ffmpeg.*Field.rate/) { s/.*ffmpeg /ffmpeg /; s/-an -filter.*uyvy422/ ..... /; $bltGen = "<b>Running</b>: <code>$_</code>"; }
 }
 close(PS);
+
+my $diskspace = "unknown";
+open(DF, "/bin/df -h /opt/blt/work|");
+while (<DF>) {
+    next unless /%/;
+    my ($disk, $size, $used, $avail, $percent, $partition) = split(/ +/);
+    my $line = $_;
+    $percent =~ s/%//;
+    if ($percent < 98) {
+        $diskspace = "<b>OK</b>: <code>$line</code>"
+    } else {
+        $diskspace = "<b>NOT OK</b>: <code>$line</code>"
+    }
+}
+close(DF);
 
 print "Content-Type: text/html\n\n";
 
@@ -88,6 +103,7 @@ print <<EOH
 NTP Check: <span class='ntp'>checking NTP...</span><br>
 BLT Reader: $bltReader<br>
 BLT Generator: $bltGen<br>
+Disk Space: $diskspace<br>
 <h2>Configuration options</h2>
 <form action="doSettings.cgi" method="post">
 <table >
