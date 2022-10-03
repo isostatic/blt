@@ -45,9 +45,13 @@ sub listDeviceById($) {
     
 }
 
+# Background options 
+# smptehdbars, smptebars, pal75bars, pal100bars, rgbtestsrc, testsrc, testsrc2, yuvtestsrc, colorspectrum
+my @backgroundOptions = qw/smptehdbars smptebars pal75bars pal100bars rgbtestsrc testsrc testsrc2 yuvtestsrc colorspectrum/;
 
 
 my $curHost = `hostname`;
+my $curBACK = "smptehdbars";
 my $curTOD = 500;
 my $curCALIB = 3;
 my $curCARD = "";
@@ -62,6 +66,7 @@ while (<SETTINGS>) {
     if (/^CARD=(.*)/) { $curCARD = $1; $curCARD =~ s/"//g; }
     if (/^DEVICE=(.*)/) { $curDEVICE = $1; next; }
     if (/^DEVICEMODE=(.*)/) { $curMODE = $1; next; }
+    if (/^BACKGROUND=(.*)/) { $curBACK = $1; next; }
 }
 close(SETTINGS);
 
@@ -142,6 +147,14 @@ foreach my $id (sort keys %{$modes->{id}}) {
 }
 $newMode .= "</select>";
 
+my $newBackground = "<select name='newBACK'>";
+foreach my $name (sort @backgroundOptions) {
+    my $sel = "";
+    if ($name eq $curBACK) { $sel = "selected"; }
+    $newBackground .= "<option $sel value=\"$name\">$name</option>";
+}
+$newBackground .= "</select>";
+
 print "<tr><td>Generator Card</td><td>$curCARD</td><td>$newGenCard</td></tr>";
 print "<tr><td>Reader Card</td><td>$niceCurDevice</td><td>$newReadCard</td></tr>";
 print "<tr><td>Reader Mode</td><td>$niceMode</td><td>$newMode</td></tr>";
@@ -157,6 +170,7 @@ print "</table>";
 print "<input type='hidden' name='restartgen' value='1'><input type='hidden' name='restartread' value='1'>";
 print "</form><h2>Operational Settings</h2>";
 print "<form action='doSettings.cgi' method='post'><table> <tr><th>Option</th><th>Current Setting</th><th>New Setting</th></tr>";
+print "<tr><td>Background</td><td>$curBACK</td><td>$newBackground</td></tr>";
 print "<tr><td>Message</td><td>$curHost</td><td><input name='newHOST' size='50' value='$curHost'></td></tr>";
 print "<tr><td class='settingsubmit' colspan='3'><input type='submit' name='change' value='Save Operational Settings'></td></tr>";
 print "</table>";

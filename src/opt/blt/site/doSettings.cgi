@@ -12,15 +12,20 @@ open(SETTINGS, "/opt/blt/etc/blt-settings.conf");
 while (<SETTINGS>) {
     my $line = $_;
     $baseSettings .= $line;
-    if (param("newHOST") =~ /./) { my $n = param("newHOST"); $line =~ s/^HOST=.*/HOST="=== $n ==="/g; }
     if (param("newCALIB") =~ /./) { my $n = param("newCALIB"); $line =~ s/^CALIB=.*/CALIB=$n/g; }
     if (param("newTOD") =~ /./) { my $n = param("newTOD"); $line =~ s/^TOD=.*/TOD=$n/g; }
     if (param("newCARD") =~ /./) { my $n = param("newCARD"); $line =~ s/^CARD=.*/CARD="$n"/g; }
     if (param("newMODE") =~ /./) { my $n = param("newMODE"); $line =~ s/^DEVICEMODE=.*/DEVICEMODE=$n/g; }
     if (param("newDEVICE") =~ /./) { my $n = param("newDEVICE"); $line =~ s/^DEVICE=.*/DEVICE=$n/g; }
+
+    # optional settings
+    if (param("newHOST") =~ /./) { my $n = param("newHOST"); $line =~ s/^HOST=.*/HOST="=== $n ==="/g; }
+    if (param("newBACK") =~ /./) { my $n = param("newBACK"); $line =~ s/^BACKGROUND=.*/BACKGROUND=$n/g; }
     $newSettings .= $line;
 }
 close(SETTINGS);
+if ($newSettings !~ /^BACKGROUND=/) { if (param("newBACK") =~ /./) { my $n = param("newBACK"); $newSettings .= "BACKGROUND=$n\n"; } }
+if ($newSettings !~ /^HOST=/) { if (param("newHOST") =~ /./) { my $n = param("newHOST"); $newSettings .= "HOST=$n\n"; } }
 #print "OK: $change\n";
 #print "=========== FROM ===========\n";
 #print $baseSettings;
