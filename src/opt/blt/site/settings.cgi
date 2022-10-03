@@ -77,7 +77,7 @@ print <<EOH
 <body>
 <h1>Broadcast Latency Tester</h1>
 <h2>Configuration options</h2>
-<form action="doSettings.cgi" method="get">
+<form action="doSettings.cgi" method="post">
 <table >
 <tr><th>Option</th><th>Current Setting</th><th>New Setting</th></tr>
 EOH
@@ -121,18 +121,22 @@ print "<tr><td class='settingsubmit' colspan='3'><input type='submit' name='chan
 print "</table>";
 print "<input type='hidden' name='restartgen' value='1'><input type='hidden' name='restartread' value='1'>";
 print "</form><h2>Calibration Settings</h2>";
-print "<form action='doSettings.cgi' method='get'><table> <tr><th>Option</th><th>Current Setting</th><th>New Setting</th></tr>";
+print "<form action='doSettings.cgi' method='post'><table> <tr><th>Option</th><th>Current Setting</th><th>New Setting</th></tr>";
 print "<tr><td>Generator Calibration</td><td>$curTOD ms</td><td><input name='newTOD' size='5' value='$curTOD'></td></tr>";
 print "<tr><td>Reader Calibration</td><td>$curCALIB frames</td><td><input name='newCALIB' size='5' value='$curCALIB'></td></tr>";
 print "<tr><td class='settingsubmit' colspan='3'><input type='submit' name='change' value='Save Calibration Settings'></td></tr>";
 print "</table>";
 print "<input type='hidden' name='restartgen' value='1'><input type='hidden' name='restartread' value='1'>";
 print "</form><h2>Operational Settings</h2>";
-print "<form action='doSettings.cgi' method='get'><table> <tr><th>Option</th><th>Current Setting</th><th>New Setting</th></tr>";
+print "<form action='doSettings.cgi' method='post'><table> <tr><th>Option</th><th>Current Setting</th><th>New Setting</th></tr>";
 print "<tr><td>Message</td><td>$curHost</td><td><input name='newHOST' size='50' value='$curHost'></td></tr>";
 print "<tr><td class='settingsubmit' colspan='3'><input type='submit' name='change' value='Save Operational Settings'></td></tr>";
 print "</table>";
 print "<input type='hidden' name='restartgen' value='1'><input type='hidden' name='restartread' value='0'>";
+print "</form>";
+print "<form action='doSettings.cgi' method='post'>";
+print "<input type='hidden' name='restartgen' value='1'><input type='hidden' name='restartread' value='1'>";
+print "<input type='submit' name='change' value='Restart BLT'></td>";
 print "</form>";
 
 print "</body></html>";
