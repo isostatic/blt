@@ -65,6 +65,15 @@ while (<SETTINGS>) {
 }
 close(SETTINGS);
 
+my $bltReader = "Not Found";
+my $bltGen = "Not Found";
+open(PS, "/bin/ps aux|");
+while(<PS>) {
+	if (s/.* .opt.blt.bin.BLT/BLT/g) { $bltReader = "Running: <code>$_</code>"; }
+	if (/ffmpeg.*Field.rate/) { s/.*ffmpeg /ffmpeg /; s/-an -filter.*uyvy422/ ..... /; $bltGen = "Running: <code>$_</code>"; }
+}
+close(PS);
+
 print "Content-Type: text/html\n\n";
 
 print <<EOH
@@ -76,6 +85,9 @@ print <<EOH
 </head>
 <body>
 <h1>Broadcast Latency Tester</h1>
+NTP Check: <span class='ntp'>checking NTP...</span><br>
+BLT Reader: $bltReader<br>
+BLT Generator: $bltGen<br>
 <h2>Configuration options</h2>
 <form action="doSettings.cgi" method="post">
 <table >
