@@ -1,8 +1,6 @@
 #!/usr/bin/perl
 use strict;
-print "Content-Type: text/plain\n\n";
-
-
+use CGI qw/param/;
 sub listDevices() {
     open(LD, "/opt/blt/bin/BLT -h 2>&1|");
     my $in = 0;
@@ -47,18 +45,94 @@ sub listDeviceById($) {
     
 }
 
-my $devs = listDevices();
-use Data::Dumper;
-#print Dumper $devs;
 
-#print Dumper $devs;
 
-foreach my $id (keys %{$devs->{id}}) {
-    my $name = $devs->{id}->{$id};
-    print "$id: [$name]\n";
-    my $modes = listDeviceById($id);
-    foreach my $modeID (keys %{$modes->{id}}) {
-        my $modeName = $modes->{id}->{$modeID}->{name};
-        print " $modeName\n";
-    }
+my $curHost = `hostname`;
+my $curTOD = 500;
+my $curCALIB = 3;
+my $curCARD = "";
+my $curDEVICE = "";
+my $curMODE = "";
+
+open(SETTINGS, "/opt/blt/etc/blt-settings.conf");
+while (<SETTINGS>) {
+    if (/^HOST="=== (.*) ==="/) { $curHost = "$1"; next; }
+    if (/^TOD=([0-9]*)/) { $curTOD = $1; next; }
+    if (/^CALIB=([0-9]*)/) { $curCALIB = $1; next; }
+    if (/^CARD=(.*)/) { $curCARD = $1; $curCARD =~ s/"//g; }
+    if (/^DEVICE=(.*)/) { $curDEVICE = $1; next; }
+    if (/^DEVICEMODE=(.*)/) { $curMODE = $1; next; }
 }
+close(SETTINGS);
+
+print "Content-Type: text/html\n\n";
+
+print <<EOH
+<html>
+<head>
+<link href="style.css?s" rel="stylesheet" />
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script> 
+<script src='src.js?w'></script>
+</head>
+<body>
+<h1>Broadcast Latency Tester</h1>
+<h2>Configuration options</h2>
+<form action="doSettings.cgi" method="get">
+<table >
+<tr><th>Option</th><th>Current Setting</th><th>New Setting</th></tr>
+EOH
+;
+
+my $devs = listDevices();
+my $newGenCard = "<select name='newCARD'>";
+foreach my $id (sort keys %{$devs->{id}}) {
+    my $name = $devs->{id}->{$id};
+    my $sel = "";
+    if ($name eq $curCARD) { $sel = "selected"; }
+    $newGenCard .= "<option $sel value=\"$name\">$name</option>";
+}
+$newGenCard .= "</select>";
+
+my $niceCurDevice = $curDEVICE;
+my $newReadCard = "<select name='newDEVICE'>";
+foreach my $id (sort keys %{$devs->{id}}) {
+    my $name = $devs->{id}->{$id};
+    my $sel = "";
+    if ($id eq $curDEVICE) { $niceCurDevice = $name; $sel = "selected"; }
+    $newReadCard .= "<option $sel value=\"$id\">$name</option>";
+}
+$newReadCard .= "</select>";
+
+my $modes = listDeviceById($curDEVICE);
+my $niceMode = $curMODE;
+my $newMode = "<select name='newMODE'>";
+foreach my $id (sort keys %{$modes->{id}}) {
+    my $name = $modes->{id}->{$id}->{name};
+    my $sel = "";
+    if ($id eq $curMODE) { $niceMode = $name; $sel = "selected"; }
+    $newMode .= "<option $sel value=\"$id\">$name</option>";
+}
+$newMode .= "</select>";
+
+print "<tr><td>Generator Card</td><td>$curCARD</td><td>$newGenCard</td></tr>";
+print "<tr><td>Reader Card</td><td>$niceCurDevice</td><td>$newReadCard</td></tr>";
+print "<tr><td>Reader Mode</td><td>$niceMode</td><td>$newMode</td></tr>";
+print "<tr><td class='settingsubmit' colspan='3'><input type='submit' name='change' value='Save Configuration Settings'></td></tr>";
+print "</table>";
+print "<input type='hidden' name='restartgen' value='1'><input type='hidden' name='restartread' value='1'>";
+print "</form><h2>Calibration Settings</h2>";
+print "<form action='doSettings.cgi' method='get'><table> <tr><th>Option</th><th>Current Setting</th><th>New Setting</th></tr>";
+print "<tr><td>Generator Calibration</td><td>$curTOD ms</td><td><input name='newTOD' size='5' value='$curTOD'></td></tr>";
+print "<tr><td>Reader Calibration</td><td>$curCALIB frames</td><td><input name='newCALIB' size='5' value='$curCALIB'></td></tr>";
+print "<tr><td class='settingsubmit' colspan='3'><input type='submit' name='change' value='Save Calibration Settings'></td></tr>";
+print "</table>";
+print "<input type='hidden' name='restartgen' value='1'><input type='hidden' name='restartread' value='1'>";
+print "</form><h2>Operational Settings</h2>";
+print "<form action='doSettings.cgi' method='get'><table> <tr><th>Option</th><th>Current Setting</th><th>New Setting</th></tr>";
+print "<tr><td>Message</td><td>$curHost</td><td><input name='newHOST' size='50' value='$curHost'></td></tr>";
+print "<tr><td class='settingsubmit' colspan='3'><input type='submit' name='change' value='Save Operational Settings'></td></tr>";
+print "</table>";
+print "<input type='hidden' name='restartgen' value='1'><input type='hidden' name='restartread' value='0'>";
+print "</form>";
+
+print "</body></html>";
