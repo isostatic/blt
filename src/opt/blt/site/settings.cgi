@@ -94,6 +94,39 @@ while (<DF>) {
 }
 close(DF);
 
+my $genlockState = `/opt/blt/bin/testgenlock`;
+$genlockState =~ s/Reference: //;
+my $genlockCSS = "";
+if ($genlockState =~ /NONE/) { $genlockCSS = "nogenlock"; }
+if ($genlockState =~ /Locked/) { $genlockCSS = "genlock"; }
+my $genlock = "<span class='$genlockCSS'>Genlock state: $genlockState</span>";
+
+
+my $recGen = 850;
+my $recRead = 850;
+my $recMode = 8;
+
+my $bmStat = "";
+my $bmSumm = "";
+open(BMS, "/usr/bin/BlackmagicFirmwareUpdater status|");
+while(<BMS>) {
+    $bmStat .= "$_<br>";
+    if (/0x34/) { # Decklink SDI
+        $bmSumm = "10+ year old Decklink card, recommend replacing";
+        $recGen = 850; $recRead = 4; $recMode = 8;
+    }
+    if (/0x123/) { # Decklink Duo 2
+        $recGen = 990; $recRead = 4; $recMode = 10;
+    }
+    if (/0xdf/) { # Decklink Micro
+        $recGen = 920; $recRead = 6; $recMode = 10;
+    }
+    if (/0xa2/) { # Decklink 4K
+        $recGen = 920; $recRead = 6; $recMode = 10;
+    }
+}
+close(BMS);
+
 print "Content-Type: text/html\n\n";
 
 print <<EOH
@@ -105,10 +138,15 @@ print <<EOH
 </head>
 <body>
 <h1>Broadcast Latency Tester</h1>
+<h2>System State</h2>
 NTP Check: <span class='ntp'>checking NTP...</span><br>
 BLT Reader: $bltReader<br>
 BLT Generator: $bltGen<br>
 Disk Space: $diskspace<br>
+$genlock<br><br>
+Installed Cards<br>
+$bmStat<br>
+$bmSumm<br>
 <h2>Configuration options</h2>
 <form action="doSettings.cgi" method="post">
 <table >
@@ -161,14 +199,19 @@ print "<tr><td>Reader Mode</td><td>$niceMode</td><td>$newMode</td></tr>";
 print "<tr><td class='settingsubmit' colspan='3'><input type='submit' name='change' value='Save Configuration Settings'></td></tr>";
 print "</table>";
 print "<input type='hidden' name='restartgen' value='1'><input type='hidden' name='restartread' value='1'>";
-print "</form><h2>Calibration Settings</h2>";
-print "<form action='doSettings.cgi' method='post'><table> <tr><th>Option</th><th>Current Setting</th><th>New Setting</th></tr>";
-print "<tr><td>Generator Calibration</td><td>$curTOD ms</td><td><input name='newTOD' size='5' value='$curTOD'></td></tr>";
-print "<tr><td>Reader Calibration</td><td>$curCALIB frames</td><td><input name='newCALIB' size='5' value='$curCALIB'></td></tr>";
+print "</form>";
+
+print "<h2>Calibration Settings</h2>";
+print "First set the Generator calibration so the displated time matches the real time, then set the Reader calibration so the read latency is zero frames<br>";
+print "<form action='doSettings.cgi' method='post'><table> <tr><th>Option</th><th>Current Setting</th><th>Recommended Seting</th><th>New Setting</th></tr>";
+print "<tr><td>Generator Calibration</td><td>$curTOD ms</td><td>$recGen</td><td><input name='newTOD' size='5' value='$curTOD'></td></tr>";
+print "<tr><td>Reader Calibration</td><td>$curCALIB frames</td><td>$recRead</td><td><input name='newCALIB' size='5' value='$curCALIB'></td></tr>";
 print "<tr><td class='settingsubmit' colspan='3'><input type='submit' name='change' value='Save Calibration Settings'></td></tr>";
 print "</table>";
 print "<input type='hidden' name='restartgen' value='1'><input type='hidden' name='restartread' value='1'>";
-print "</form><h2>Operational Settings</h2>";
+print "</form>";
+
+print "<h2>Operational Settings</h2>";
 print "<form action='doSettings.cgi' method='post'><table> <tr><th>Option</th><th>Current Setting</th><th>New Setting</th></tr>";
 print "<tr><td>Background</td><td>$curBACK</td><td>$newBackground</td></tr>";
 print "<tr><td>Message</td><td>$curHost</td><td><input name='newHOST' size='50' value='$curHost'></td></tr>";
@@ -176,6 +219,7 @@ print "<tr><td class='settingsubmit' colspan='3'><input type='submit' name='chan
 print "</table>";
 print "<input type='hidden' name='restartgen' value='1'><input type='hidden' name='restartread' value='0'>";
 print "</form>";
+
 print "<form action='doSettings.cgi' method='post'>";
 print "<input type='hidden' name='restartgen' value='1'><input type='hidden' name='restartread' value='1'>";
 print "<input type='submit' name='change' value='Restart BLT'></td>";

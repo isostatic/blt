@@ -24,8 +24,8 @@ while (<SETTINGS>) {
     $newSettings .= $line;
 }
 close(SETTINGS);
-if ($newSettings !~ /^BACKGROUND=/) { if (param("newBACK") =~ /./) { my $n = param("newBACK"); $newSettings .= "BACKGROUND=$n\n"; } }
-if ($newSettings !~ /^HOST=/) { if (param("newHOST") =~ /./) { my $n = param("newHOST"); $newSettings .= "HOST=$n\n"; } }
+if ($newSettings !~ /BACKGROUND=/) { if (param("newBACK") =~ /./) { my $n = param("newBACK"); $newSettings .= "BACKGROUND=$n\n"; } }
+if ($newSettings !~ /HOST=/) { if (param("newHOST") =~ /./) { my $n = param("newHOST"); $newSettings .= "HOST=$n\n"; } }
 #print "OK: $change\n";
 #print "=========== FROM ===========\n";
 #print $baseSettings;
