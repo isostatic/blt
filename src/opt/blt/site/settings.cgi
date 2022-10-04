@@ -47,7 +47,8 @@ sub listDeviceById($) {
 
 # Background options 
 # smptehdbars, smptebars, pal75bars, pal100bars, rgbtestsrc, testsrc, testsrc2, yuvtestsrc, colorspectrum
-my @backgroundOptions = qw/smptehdbars smptebars pal75bars pal100bars rgbtestsrc testsrc testsrc2 yuvtestsrc colorspectrum/;
+# colorchart?
+my @backgroundOptions = qw/smptehdbars;SMPTE_HD_Bars smptebars;SMPTE_SD_Bars pal75bars;PAL_Bars_75% pal100bars;PAL_Bars_100% rgbtestsrc;RGB testsrc;Test_Source_1 testsrc2;Test_Source_2 yuvtestsrc;YUV_Test_Source colorspectrum;Colour_Spectrum color=c=blue;Splash_Blue color=c=red;Splash_Red color=c=green;Splash_Green/;
 
 
 my $curHost = `hostname`;
@@ -186,10 +187,12 @@ foreach my $id (sort keys %{$modes->{id}}) {
 $newMode .= "</select>";
 
 my $newBackground = "<select name='newBACK'>";
-foreach my $name (sort @backgroundOptions) {
+foreach my $cde (sort @backgroundOptions) {
+    my ($id, $name) = split(/;/, $cde);
+    $name =~ s/_/ /g;
     my $sel = "";
-    if ($name eq $curBACK) { $sel = "selected"; }
-    $newBackground .= "<option $sel value=\"$name\">$name</option>";
+    if ($id eq $curBACK) { $sel = "selected"; }
+    $newBackground .= "<option $sel value=\"$id\">$name</option>";
 }
 $newBackground .= "</select>";
 
