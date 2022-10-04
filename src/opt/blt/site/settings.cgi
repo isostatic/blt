@@ -113,7 +113,7 @@ open(BMS, "/usr/bin/BlackmagicFirmwareUpdater status|");
 while(<BMS>) {
     $bmStat .= "$_<br>";
     if (/0x34/) { # Decklink SDI
-        $bmSumm = "10+ year old Decklink card, recommend replacing";
+        $bmSumm = "<ul><li>10+ year old Decklink card, recommend replacing</ul>";
         $recGen = 850; $recRead = 4; $recMode = 8;
     }
     if (/0x123/) { # Decklink Duo 2
@@ -147,7 +147,9 @@ Disk Space: $diskspace<br>
 $genlock<br><br>
 Installed Cards<br>
 $bmStat<br>
-$bmSumm<br>
+$bmSumm
+<br>
+<a href='index.cgi'>Return to reader</a>
 <h2>Configuration options</h2>
 <form action="doSettings.cgi" method="post">
 <table >

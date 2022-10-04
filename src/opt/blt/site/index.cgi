@@ -142,6 +142,8 @@ $recordings
 </p>
 <p>
 This latency tester generates a signal using FFMPEG out of a Blackmagic video card, which has a frame counter burnt into the output<br>
+<br>
+<a href='settings.cgi'>Configure and Calibrate</a><br>
 
 Full details on its purpose and use are <a href='README.html'>in the readme</a>
 </body></html>
