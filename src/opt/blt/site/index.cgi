@@ -108,6 +108,7 @@ foreach (reverse sort @recs) {
 }
 $recordings .= "</ul>";
 
+my $utime = time;
 print <<EOF
 <html>
 <head>
@@ -138,7 +139,7 @@ $decChange
 <p>
 <a href='./latestRecording'>Latest recording</a>
 $recordings
-<a href='doRecording.cgi?e'>Do recording</a>
+<a href='doRecording.cgi?e=$utime'>Do recording</a>
 </p>
 <p>
 This latency tester generates a signal using FFMPEG out of a Blackmagic video card, which has a frame counter burnt into the output<br>
