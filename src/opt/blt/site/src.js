@@ -36,7 +36,7 @@ function doTime() {
     var subframes = ms % 40;
     subframes = subframes < 10 ? '0'+subframes : subframes;
 
-    $('#thetime').html = hrs + ":" + mins + ":" + secs + ":" + frames + "+" + subframes  + "ms";
+    $('#thetime').html(hrs + ":" + mins + ":" + secs + ":" + frames + "+" + subframes  + "ms");
 }
 function doNTP() {
 	$.get({url: "ntp.cgi", success: function(d) {

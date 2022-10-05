@@ -136,6 +136,11 @@ print <<EOH
 <link href="style.css?s" rel="stylesheet" />
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script> 
 <script src='src.js?w'></script>
+<script>
+\$(function() {
+	startTime();
+});
+</script>
 </head>
 <body>
 <h1>Broadcast Latency Tester</h1>
@@ -208,6 +213,7 @@ print "</form>";
 
 print "<h2>Calibration Settings</h2>";
 print "First set the Generator calibration so the displated time matches the real time, then set the Reader calibration so the read latency is zero frames<br>";
+print "<div id='rtc'> <span id='thetime' class='big'>XX:XX:XX:XX+XXms</span> </div>";
 print "<form action='doSettings.cgi' method='post'><table> <tr><th>Option</th><th>Current Setting</th><th>Recommended Seting</th><th>New Setting</th></tr>";
 print "<tr><td>Generator Calibration</td><td>$curTOD ms</td><td>$recGen</td><td><input name='newTOD' size='5' value='$curTOD'></td></tr>";
 print "<tr><td>Reader Calibration</td><td>$curCALIB frames</td><td>$recRead</td><td><input name='newCALIB' size='5' value='$curCALIB'></td></tr>";
