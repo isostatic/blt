@@ -58,6 +58,7 @@ my $curCALIB = 3;
 my $curCARD = "";
 my $curDEVICE = "";
 my $curMODE = "";
+my $curNTP = "pool.ntp.org";
 
 open(SETTINGS, "/opt/blt/etc/blt-settings.conf");
 while (<SETTINGS>) {
@@ -68,6 +69,7 @@ while (<SETTINGS>) {
     if (/^DEVICE=(.*)/) { $curDEVICE = $1; next; }
     if (/^DEVICEMODE=(.*)/) { $curMODE = $1; next; }
     if (/^BACKGROUND=(.*)/) { $curBACK = $1; next; }
+    if (/^NTP_SVR=(.*)/) { $curNTP = $1; next; }
 }
 close(SETTINGS);
 
@@ -106,6 +108,7 @@ my $genlock = "<span class='$genlockCSS'>Genlock state: $genlockState</span>";
 my $recGen = 850;
 my $recRead = 850;
 my $recMode = 8;
+my $recNTP = "pool.ntp.org";
 
 my $bmStat = "";
 my $bmSumm = "";
@@ -145,7 +148,7 @@ print <<EOH
 <body>
 <h1>Broadcast Latency Tester</h1>
 <h2>System State</h2>
-NTP Check: <span class='ntp'>checking NTP...</span><br>
+NTP Check: <span class='ntp'>checking NTP...</span>. <a class='ntpsync' href='#' onclick='forceSync();'>Force NTP Sync</a><br>
 BLT Reader: $bltReader<br>
 BLT Generator: $bltGen<br>
 Disk Space: $diskspace<br>
@@ -217,7 +220,8 @@ print "<div id='rtc'> <span id='thetime' class='big'>XX:XX:XX:XX+XXms</span> </d
 print "<form action='doSettings.cgi' method='post'><table> <tr><th>Option</th><th>Current Setting</th><th>Recommended Seting</th><th>New Setting</th></tr>";
 print "<tr><td>Generator Calibration</td><td>$curTOD ms</td><td>$recGen</td><td><input name='newTOD' size='5' value='$curTOD'></td></tr>";
 print "<tr><td>Reader Calibration</td><td>$curCALIB frames</td><td>$recRead</td><td><input name='newCALIB' size='5' value='$curCALIB'></td></tr>";
-print "<tr><td class='settingsubmit' colspan='3'><input type='submit' name='change' value='Save Calibration Settings'></td></tr>";
+print "<tr><td>NTP Server</td><td>$curNTP</td><td>$recNTP</td><td><input name='newNTP' size='50' value='$curNTP'></td></tr>";
+print "<tr><td class='settingsubmit' colspan='4'><input type='submit' name='change' value='Save Calibration Settings'></td></tr>";
 print "</table>";
 print "<input type='hidden' name='restartgen' value='1'><input type='hidden' name='restartread' value='1'>";
 print "</form>";

@@ -39,7 +39,7 @@ function doTime() {
     $('#thetime').html(hrs + ":" + mins + ":" + secs + ":" + frames + "+" + subframes  + "ms");
 }
 function doNTP() {
-	$.get({url: "ntp.cgi", success: function(d) {
+	$.get({url: "ntp.cgi?d", success: function(d) {
 		// if -100 is returned, latency is 100 frames too high
 		// if 100 is returned, latency is 100 frames too low
 		$(".ntp").html("This reader: " + d);
@@ -47,6 +47,15 @@ function doNTP() {
 }
 
 stopTime();
+
+function forceSync() {
+	$(".ntp").html("Re-syncing");
+	$.get({url: "ntp.cgi?forceSync=1", success: function(d) {
+		$(".ntp").html("This reader post sync: " + d);
+	}});
+	$('.ntpsync').hide();
+	return null;
+}
 
 $(function() {
 	if ($(".ntp").length) {

@@ -24,6 +24,7 @@ while (<SETTINGS>) {
     if (param("newCARD") =~ /./) { my $n = param("newCARD"); $line =~ s/^CARD=.*/CARD="$n"/g; }
     if (param("newMODE") =~ /./) { my $n = param("newMODE"); $line =~ s/^DEVICEMODE=.*/DEVICEMODE=$n/g; }
     if (param("newDEVICE") =~ /./) { my $n = param("newDEVICE"); $line =~ s/^DEVICE=.*/DEVICE=$n/g; }
+    if (param("newNTP") =~ /./) { my $n = param("newNTP"); $line =~ s/^NTP_SVR=.*/NTP_SVR=$n/g; }
 
     # optional settings
     if (param("newHOST") =~ /./) { my $n = param("newHOST"); $line =~ s/^HOST=.*/HOST="=== $n ==="/g; }
@@ -33,6 +34,7 @@ while (<SETTINGS>) {
 close(SETTINGS);
 if ($newSettings !~ /BACKGROUND=/) { if (param("newBACK") =~ /./) { my $n = param("newBACK"); $newSettings .= "BACKGROUND=$n\n"; } }
 if ($newSettings !~ /HOST=/) { if (param("newHOST") =~ /./) { my $n = param("newHOST"); $newSettings .= "HOST=$n\n"; } }
+if ($newSettings !~ /NTP_SVR=/) { if (param("newNTP") =~ /./) { my $n = param("newNTP"); $newSettings .= "NTP_SVR=$n\n"; } }
 #print "OK: $change\n";
 #print "=========== FROM ===========\n";
 #print $baseSettings;

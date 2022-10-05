@@ -1,8 +1,22 @@
 #!/usr/bin/perl
 use strict;
+use CGI qw/param/;
 
-my $cmd = "ntpdate -q pool.ntp.org";
-my $res = "Failure checking NTP";
+my $ntpSvr = "pool.ntp.org";
+open(SETTINGS, "/opt/blt/etc/blt-settings.conf");
+while (<SETTINGS>) {
+	if (/^NTP_SVR=(.*)$/) {
+		$ntpSvr = $1;
+	}
+}
+close(SETTINGS);
+
+my $cmd = "ntpdate -q $ntpSvr";
+if (param("forceSync") == 1) {
+	$cmd = "sudo /opt/blt/bin/forceSync.sh";
+}
+
+my $res = "Failure checking NTP server $ntpSvr";
 open(F, "$cmd|");
 while (<F>) {
    if (/time server ([^ ]*) offset ([\-0-9\.]*)/) {
@@ -15,7 +29,11 @@ while (<F>) {
         } else {
             $res = "<b>$frame frames off</b>";
         }
-        $res .= "<small> - ${sec}s offset, according to $svr</small>";
+	if ($sec < 1) {
+		$sec = $sec*1000;
+		$sec .= "m";
+	}
+        $res .= "<small>:${sec}s (${frame} frame) offset, according to $svr</small>";
    }
 }
 close(F);
