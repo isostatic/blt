@@ -26,4 +26,5 @@ fi
 
 sudo chmod 777 /opt/blt/work/
 sudo chmod 777 /opt/blt/site/
+sudo chmod 666 /opt/blt/etc/blt-settings.conf
 sudo chmod 644 /opt/blt/etc/blt-snapshot-cron

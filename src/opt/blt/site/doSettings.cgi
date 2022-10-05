@@ -2,6 +2,13 @@
 use strict;
 use CGI qw/param/;
 
+
+sub err() {
+	print "Content-Type: text/html\n\n";
+	print "<html><body>Error writing config file <code>".`ls -l /opt/blt/etc/blt-settings.conf`."</code> -- fix permissions? <br><a href='settings.cgi'>Return to settings</a> </body> </html>";
+	exit;
+}
+
 my $change = param("change");
 
 #print "Content-Type: text/plain\n\n";
@@ -32,9 +39,20 @@ if ($newSettings !~ /HOST=/) { if (param("newHOST") =~ /./) { my $n = param("new
 #print "=========== TO ===========\n";
 #print $newSettings;
 
-open(NSF, ">/opt/blt/etc/blt-settings.conf");
+open(NSF, ">/opt/blt/etc/blt-settings.conf") or err();
 print(NSF $newSettings);
 close(NSF);
+
+my $checkSet = "";
+open(SETTINGS, "/opt/blt/etc/blt-settings.conf");
+while (<SETTINGS>) {
+	$checkSet .= $_;
+}
+close(SETTINGS);
+if ($checkSet ne $newSettings) {
+	err();
+}
+
 
 if (param("restartread") == 1) {
     #print "RESTART READ\n";
