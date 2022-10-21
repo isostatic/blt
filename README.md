@@ -12,7 +12,7 @@ Without having to have expensive proprietary equipment. This will run on any mac
 
 ## Installation
 
-To install bcn, use Ubuntu 20.04 and install the blt package. Also install the Blackmagic drivers - 12.2 is a good year. Update the firmware and reboot. 
+To install blt, use Ubuntu 20.04 and install the blt package. Also install the Blackmagic drivers - 12.2 is a good year. Update the firmware and reboot. 
 
 Run ```sudo /opt/blt/bin/install.sh```
 
