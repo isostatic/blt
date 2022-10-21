@@ -4,5 +4,5 @@ NTP_SVR=pool.ntp.org
 
 . /opt/blt/etc/blt-settings.conf
 
-ntpdate $NTP_SVR
+ntpdate -b -u $NTP_SVR
 
