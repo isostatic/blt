@@ -14,47 +14,24 @@ Without having to have expensive proprietary equipment. This will run on any mac
 
 To install blt, use Ubuntu 20.04 and install the blt package. Also install the Blackmagic drivers - 12.2 is a good year. Update the firmware and reboot. 
 
-Run ```sudo /opt/blt/bin/install.sh```
+Visit the Setting page: http://server.ip/blt/settings.cgi. Ensure the configuration options are correct and hit save. 
 
+Then proceed to the calibration settings section. Recommended process is first calibrate the generator
 
-Run ```/opt/blt/bin/BLT``` to get the name of the card and output you want, the below assumes you're using a Decklink Duo 2
+1. Ensure NTP is correctly synced at the top of the settings page
 
-```
-You must select a device
-Usage: BLT -d <device id> -m <mode id> [OPTIONS]
+2. Ensure your own desktop machine is synced by checking at https://time.is
 
-    -d <device id>:
-         0: DeckLink Duo (1)
-         1: DeckLink Duo (2)
-         2: DeckLink Duo (3) (inactive)
-         3: DeckLink Duo (4) (inactive)
-```
+3. Put the setting clock (driven from your internal clock) next to a monitor showing the output of BLT
 
-You then need to edit the file /opt/blt/etc/blt-settings.conf
+4. Take a photo, and make sure the displayed times are accurate
 
-```CARD="DeckLink Duo (1)"```
+Then you calibrate the reader. Push the otuput of the BLT into the input, and return to the reader, where it says something like
+    Video latency calculated at 4, with a built in calibration of 3 frames meaning latency = 1 frames, but this relies on various factors. 
 
-Set this to the value above
+5. Adjust the number on the setting page so the video latency = 0 frames. This is always plus-or-minus a frame, so aiming for a latency of 1 may be a better (area for future discussion)
 
-```FRATE=25```
-
-At some point I'll work out how to do 30000/1001 framerates, and perhaps (easier) 50fps
-
-```TOD=1000```
-
-This is a value to allow syncing the output of the time to ensure that the displayed time is accurate
-
-```DEVICE=1```
-
-The SDI output from above (BLT) to use
-
-```DEVICEMODE=11```
-
-This varies depending on the card, run ```/opt/blt/bin/BLT -d 0``` (where 0 is the output device) to see the format, you'll want 1080i50 (other formats won't work)
-
-```CALIB=0```
-This is to calibrate the read part of BLT. First calibrate the generation part, then pump BLT output into itself, and set the value to get the delay down to zero
-
+It's plausbile the delay through a given model of blackmagic card is always the same, so using the recommended setting may do the job
 
 ## Usage
 Once installed the BLT generator should run by itself. To use the reader, simply visit the BLT webpage and see the display.
@@ -152,15 +129,14 @@ This program is licensed under GPL, do whatever you want with it (laugh etc), ju
 
 # TODOs
 
-* change ffmpeg to allow encode side calibration
+* check an NTP daemon is running as well as checking in sync
 * Manage older log/capture files
-* check NTP sync
 * Expose older log/capture files
 * Make the graph javascript based slippygraph
 * overlay changes in detected decoder
+* detected decoder code seems to be a bit haywire in recent versions
 * authentication on webpage (based on http header)
-* expose and change configuration options from webpage
-* Configure from the webpage
-* Calibration for audio samples?
+* detect first time installation and apply recommended settings (including correct card detection)
+* Calibration for audio samples? Currently a few samples off, less than 1ms
 * Support more than 1080i25
 
