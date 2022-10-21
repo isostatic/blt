@@ -75,6 +75,7 @@ static signed long    g_lastRealTime = 0;
 static signed int     g_lastRealTimeFrames = 0;
 static signed int     g_currentLatency = 0;
 static signed int     g_frameCalibration = 6; // number of frames the entire process takes for a Blackmagic->Blackmagic plugged directly together
+static signed int     g_latencyDecodeLine = 665; // number of frames the entire process takes for a Blackmagic->Blackmagic plugged directly together
 
 static unsigned long    g_video_frameCount = 0;
 static unsigned long    g_lastSilenceStart = -10;
@@ -170,7 +171,8 @@ HRESULT DeckLinkBLTDelegate::VideoInputFrameArrived(IDeckLinkVideoInputFrame* vi
                     squareLuma2 = squareLuma2 + y1 + y2; 
                 }
                 // Line 660-680, pixsel 650-1270 (sample 235-635) has time-of-day encoded on the screen, surrounded by a sea of luma = 0xb4
-                if (line > 659 && line < 675 && sample > 325 && sample <= 646) {
+                // if offset, could be g_latencyDecodeLine-5 -- nomally it's 660-674 inc
+                if (line > (g_latencyDecodeLine-6) && line < (g_latencyDecodeLine+10) && sample > 325 && sample <= 646) {
                     char c1 = '0';
                     char c2 = '0';
                     if (y1 > 128) { c1 = '1'; }
@@ -178,7 +180,7 @@ HRESULT DeckLinkBLTDelegate::VideoInputFrameArrived(IDeckLinkVideoInputFrame* vi
 
                     // Line 665 is a good line to detect on
                     // 20 pixels (10 samples) between each change
-                    if (line == 665) {
+                    if (line == g_latencyDecodeLine) {
                         for (int i = 0; i < 32; i++) {
                             int start = 328 + (i*10);
                             int end = 330 + (i*10);
@@ -187,10 +189,12 @@ HRESULT DeckLinkBLTDelegate::VideoInputFrameArrived(IDeckLinkVideoInputFrame* vi
                             }
                         }
                     }
-                    if (line == 665 && g_video_frameCount % 25 == 0 ) {
-//                        printf("Frame %ld, Sample: %d = %c%c\n", g_video_frameCount, sample, c1, c2);
-                    //    if ((sample-325) % 10 == 0) { printf(" "); }
-                    //    printf("%c%c",c1,c2);
+                    if (line == g_latencyDecodeLine && g_video_frameCount % 25 == 0 ) {
+                        if (DEBUG > 6) {
+                            printf("Frame %ld, Sample: %d = %c%c\n", g_video_frameCount, sample, c1, c2);
+                            if ((sample-325) % 10 == 0) { printf(" "); }
+                            printf("%c%c",c1,c2);
+                        }
                     }
 //                    if ((sample % 1) == 0) { printf("%c",c1); }
  //                   if (sample == 485) { printf("\nB         "); }
@@ -200,14 +204,16 @@ HRESULT DeckLinkBLTDelegate::VideoInputFrameArrived(IDeckLinkVideoInputFrame* vi
             }
 //            if (line > 650 && line < 690) { printf("\n"); }
 //            if (line < 1500 && line % 20 == 0) { printf("\n"); }
-            if (line == 665) { 
+            if (line == g_latencyDecodeLine) { 
                 int decodedTime = 0;
-//                printf("TRACE: %ld decode (bin order ", g_video_frameCount);
-//                for (int i = 31; i >= 0; i--) {
-//                    printf("%d", decode[i] > 1000);
-//                    if (i % 8 == 0) { printf(" "); }
-//                }
-//                printf("). Val");
+                if (DEBUG > 7) {
+                    printf("TRACE: %ld decode (bin order ", g_video_frameCount);
+                    for (int i = 31; i >= 0; i--) {
+                        printf("%ld", decode[i]);
+                        if (i % 8 == 0) { printf(" "); }
+                    }
+                    printf("). Val");
+                }
                 for (int i = 0; i < 32; i++) {
 //                    printf("%d ", decode[i] > 1000);
                     if (decode[i] > 1000) {
@@ -235,7 +241,7 @@ HRESULT DeckLinkBLTDelegate::VideoInputFrameArrived(IDeckLinkVideoInputFrame* vi
                 long deltaFrames = g_lastRealTimeFrames - g_lastDecodeTimeFrames;
                 long deltaF = (deltaSecs * 25) + deltaFrames;
                 deltaF = deltaF - g_frameCalibration;
-//                printf("DEBUG: Decoded Time == %lu.%d. Current time = %lu.%d. Delta Seconds = %ld, Delta Frames = %ld\n", g_lastDecodeTime, g_lastDecodeTimeFrames, g_lastRealTime, g_lastRealTimeFrames, deltaSecs, deltaFrames);
+                if (DEBUG > 4) printf("DEBUG: Decoded Time == %lu.%d. Current time = %lu.%d. Delta Seconds = %ld, Delta Frames = %ld\n", g_lastDecodeTime, g_lastDecodeTimeFrames, g_lastRealTime, g_lastRealTimeFrames, deltaSecs, deltaFrames);
                 if (g_lastDecodeTime < 1600000000 || g_lastDecodeTime > 2500000000) {
                     // Invalid time frame -- well outside the expected time boundaries
                 } else if (g_currentLatency != deltaF) {
@@ -433,6 +439,8 @@ int main(int argc, char *argv[])
     char*                            displayModeName = NULL;
     bool                            supported;
 
+    IDeckLinkConfiguration *deckLinkConfiguration = NULL;
+
     DeckLinkBLTDelegate*        delegate = NULL;
 
     pthread_mutex_init(&g_sleepMutex, NULL);
@@ -456,6 +464,17 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Unable to get DeckLink device %u\n", g_config.m_deckLinkIndex);
         goto bail;
     }
+
+    if (deckLink->QueryInterface(IID_IDeckLinkConfiguration, (void **)&deckLinkConfiguration) != S_OK) {
+        printf("Could not get the IDeckLinkConfiguration interface\n");
+        deckLinkConfiguration = NULL;
+        goto bail;
+    }
+    result = deckLinkConfiguration->SetInt(0x64757078, 0x66647570);
+    if (FAILED(result))
+        printf("Can't force decklink to full duplex");
+    else
+        printf("Force decklink to full duplex");
 
     // Check the Genlock status
     if (g_config.m_doGenlock == 1) {
@@ -564,6 +583,9 @@ int main(int argc, char *argv[])
 
     // Set latency calibration
     g_frameCalibration = g_config.m_latencyCalibrate;
+
+    // Set latency calibration
+    g_latencyDecodeLine = g_config.m_latencyDecodeLine;
 
     // Set dump every
     g_dumpEvery = g_config.m_dumpEvery;

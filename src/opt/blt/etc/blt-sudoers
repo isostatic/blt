@@ -1,1 +1,4 @@
 www-data ALL = NOPASSWD : /opt/blt/bin/recordSample.sh
+www-data ALL = NOPASSWD : /usr/sbin/service blt-gen restart
+www-data ALL = NOPASSWD : /usr/sbin/service blt-read restart
+www-data ALL = NOPASSWD : /opt/blt/bin/forceSync.sh

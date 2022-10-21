@@ -1,14 +1,41 @@
 <h1>Broadcast Latency Tester</h1>
 
-<p><img alt="Block Diagram" src="doc/read.png"/></p>
+<p><img src="doc/read.png" alt="Block Diagram" title="" /></p>
 
 <h2>Purpose</h2>
 
-<p>The &quot;Broadcast Latency Tester&quot; (BLT) solves two problems</p>
+<p>The "Broadcast Latency Tester" (BLT) solves two problems</p>
 
-<ol><li>Having a source available with a frame counter, allowing latency comparisons</li><li>Having a source available with GLITS on to measure audio sync</li></ol>
+<ol>
+<li>Having a source available with a frame counter, allowing latency comparisons</li>
+<li>Having a source available with GLITS on to measure audio sync</li>
+</ol>
 
 <p>Without having to have expensive proprietary equipment. This will run on any machine with a blackmagic card.</p>
+
+<h2>Installation</h2>
+
+<p>To install blt, use Ubuntu 20.04 and install the blt package. Also install the Blackmagic drivers - 12.2 is a good year. Update the firmware and reboot. </p>
+
+<p>Visit the Setting page: http://server.ip/blt/settings.cgi. Ensure the configuration options are correct and hit save. </p>
+
+<p>Then proceed to the calibration settings section. Recommended process is first calibrate the generator</p>
+
+<ol>
+<li><p>Ensure NTP is correctly synced at the top of the settings page</p></li>
+<li><p>Ensure your own desktop machine is synced by checking at https://time.is</p></li>
+<li><p>Put the setting clock (driven from your internal clock) next to a monitor showing the output of BLT</p></li>
+<li><p>Take a photo, and make sure the displayed times are accurate</p></li>
+</ol>
+
+<p>Then you calibrate the reader. Push the otuput of the BLT into the input, and return to the reader, where it says something like
+    Video latency calculated at 4, with a built in calibration of 3 frames meaning latency = 1 frames, but this relies on various factors. </p>
+
+<ol>
+<li>Adjust the number on the setting page so the video latency = 0 frames. This is always plus-or-minus a frame, so aiming for a latency of 1 may be a better (area for future discussion)</li>
+</ol>
+
+<p>It's plausbile the delay through a given model of blackmagic card is always the same, so using the recommended setting may do the job</p>
 
 <h2>Usage</h2>
 
@@ -18,23 +45,23 @@
 
 <p>Take the output of the BLT and route into a video encoder. Point the encoder at a decoder, and route the decoder back to the BLT. See the webpage to ensure the signal is looping through and the reported audio latency is correct. Leave to run for a few hours.</p>
 
-<p><img alt="Block Diagram" src="doc/bd1.png"/></p>
+<p><img src="doc/bd1.png" alt="Block Diagram" title="" /></p>
 
-<p>The BLT can test other SDI signal chain, but it&#39;s main purpose is for measuring IP encode/decode latency and drift</p>
+<p>The BLT can test other SDI signal chain, but it's main purpose is for measuring IP encode/decode latency and drift</p>
 
 <h3>Measuring video latency (method 1)</h3>
 
 <p>Set up the system as for measuring audio sync, but tee off to two separate monitors</p>
 
-<p><img alt="Block Diagram" src="doc/bd2.png"/></p>
+<p><img src="doc/bd2.png" alt="Block Diagram" title="" /></p>
 
-<p>Take a picture of the two identical monitors or multiviewer inputs, subtract the frame count, and that&#39;s your latency. To ensure your monitors are introducing different delays, it&#39;s worth swapping the inputs round just con confirm</p>
+<p>Take a picture of the two identical monitors or multiviewer inputs, subtract the frame count, and that's your latency. To ensure your monitors are introducing different delays, it's worth swapping the inputs round just con confirm</p>
 
 <h3>Measuring video latency (method 2)</h3>
 
-<p>This <strong>requires</strong> a calibrated encoder and decoder, but can be used when you don&#39;t have two monitors in the same room/continent</p>
+<p>This <strong>requires</strong> a calibrated encoder and decoder, but can be used when you don't have two monitors in the same room/continent</p>
 
-<p><img alt="Block Diagram" src="doc/bd3.png"/></p>
+<p><img src="doc/bd3.png" alt="Block Diagram" title="" /></p>
 
 <h3>Measuring change over time</h3>
 
@@ -44,7 +71,7 @@
 
 <h3>Generator</h3>
 
-<p><img alt="Testcard" src="doc/tc.png"/></p>
+<p><img src="doc/tc.png" alt="Testcard" title="" /></p>
 
 <p>Using FFMPEG and a blackmagic card we can create a fairly useful test card</p>
 
@@ -52,27 +79,27 @@
 
 <h4>Left/Right GLITS</h4>
 
-<p><img alt="Left Indicator" src="doc/glits-left.png"/> <img alt="Right Indicator" src="doc/glits-right.png"/></p>
+<p><img src="doc/glits-left.png" alt="Left Indicator" title="" /> <img src="doc/glits-right.png" alt="Right Indicator" title="" /></p>
 
 <p>In the top left corner, every 4 seconds, audio vanishes on the left leg and a red square, 100px * 100px, appears. Shortly after audio vanishes on the right leg and a green square appears offset from the left square by 100px. </p>
 
-<p>(The audio isn&#39;t neccersarilly 1kHz / 0dB)</p>
+<p>(The audio isn't neccersarilly 1kHz / 0dB)</p>
 
 <h4>Moving frame-rate box</h4>
 
-<p><img alt="Frame movement" src="doc/framerate.png"/></p>
+<p><img src="doc/framerate.png" alt="Frame movement" title="" /></p>
 
-<p>The top box moves rightwards every frame, crossing the screen once per second, showing a codec hasn&#39;t frozen</p>
+<p>The top box moves rightwards every frame, crossing the screen once per second, showing a codec hasn't frozen</p>
 
 <h4>Moving field-rate box</h4>
 
-<p><img alt="Field movement" src="doc/fieldrate.png"/></p>
+<p><img src="doc/fieldrate.png" alt="Field movement" title="" /></p>
 
-<p>The top box moves rightwards every field, crossing the screen once per second, showing if fields are reversed or something else is &quot;off&quot; with them, it should appear smoother than the frame-rate box above</p>
+<p>The top box moves rightwards every field, crossing the screen once per second, showing if fields are reversed or something else is "off" with them, it should appear smoother than the frame-rate box above</p>
 
 <h4>Field indicator</h4>
 
-<p><img alt="Field Indicator" src="doc/fieldind.png"/></p>
+<p><img src="doc/fieldind.png" alt="Field Indicator" title="" /></p>
 
 <p>Field 1 or Field 2 is printed on each field, showing if just one field is shown</p>
 
@@ -80,19 +107,19 @@
 
 <p>A number since the start increments, one per frame, allowing easy comparison between two different sources with different latencies</p>
 
-<p><img alt="Frame indicator" src="doc/framecounter.png"/></p>
+<p><img src="doc/framecounter.png" alt="Frame indicator" title="" /></p>
 
 <h4>Time of day</h4>
 
-<p><img alt="TimeOfDay" src="doc/tod.png"/></p>
+<p><img src="doc/tod.png" alt="TimeOfDay" title="" /></p>
 
 <p>The time of day of the generating computer. This is based on NTP from the generating machine, however needs calibrating to cope with different cards. The end-to-end latency for an encode+decode process is typically 6 frames, but the output needs calibrating by comparing with a correct time of day source.</p>
 
-<p>The date is encoded in binary underneath (the &lt; and &gt; characters), allowing a reader application to easily decode and calculate end to end delay between different sites without using an excessive amount of CPU OCRing each frame. The time is based on the start time plus the number of displayed frames. This does seem to drift about 1 frame an hour, as such BLT by default automatically restarts the output process every 30 minutes.</p>
+<p>The date is encoded in binary underneath (the &lt; and > characters), allowing a reader application to easily decode and calculate end to end delay between different sites without using an excessive amount of CPU OCRing each frame. The time is based on the start time plus the number of displayed frames. This does seem to drift about 1 frame an hour, as such BLT by default automatically restarts the output process every 30 minutes.</p>
 
 <h3>READER</h3>
 
-<p><img alt="Reader webpage" src="doc/read.png"/></p>
+<p><img src="doc/read.png" alt="Reader webpage" title="" /></p>
 
 <p>A program can be used to decode the testcard, this outputs as a webpage showing the current input picture, and decoding it</p>
 
@@ -108,8 +135,39 @@
 
 <p>This program is licensed under GPL, do whatever you want with it (laugh etc), just give back your changes. The C++ code for the Capture program is based on the blackmagic sample code from the decklink drivers, with the license in the header of the files. The modifications to ffmpeg are in <a href="https://github.com/isostatic/FFmpeg">github</a> (because the code is awful and far to embarrasing to mention to geniuses behind ffmpeg). The binaries provided in this repo are built under x64/ubuntu 20.04 with desktopvideo 12.2.2a6</p>
 
-<hr/>
+<hr />
 
 <h1>TODOs</h1>
 
-<ul><li>change ffmpeg to allow encode side calibration</li><li>Manage older log/capture files</li><li>check NTP sync</li><li>Expose older log/capture files</li><li>Make the graph javascript based slippygraph</li><li>overlay changes in detected decoder</li><li>authentication on webpage (based on http header)</li><li>expose and change configuration options from webpage</li><li>Configure from the webpage</li><li>Calibration for audio samples?</li><li>Support more than 1080i25</li></ul>
+<h2>Installation</h2>
+
+<ul>
+<li>detect first time installation and apply recommended settings (including correct card detection)</li>
+<li>Calibration for audio samples? Currently a few samples off, less than 1ms</li>
+</ul>
+
+<h2>Time based</h2>
+
+<ul>
+<li>Expose timezone selection in settings.cgi</li>
+<li>check an NTP daemon is running as well as checking in sync</li>
+</ul>
+
+<h2>Displays</h2>
+
+<ul>
+<li>Manage older log/capture files</li>
+<li>Expose older log/capture files</li>
+<li>Make the graph javascript based slippygraph</li>
+<li>detected decoder code seems to be a bit haywire in recent versions</li>
+<li>overlay changes in detected decoder</li>
+<li>Cope better with invalid sources when it comes to the graph (and the detector)</li>
+</ul>
+
+<h2>Core functions</h2>
+
+<ul>
+<li>Allow authentication on webpage (based on http header perhaps?)</li>
+<li>Support more than just 1080i25 - UHD for example</li>
+<li>Record - detect it's working or failed rather than just waiting and hoping</li>
+</ul>

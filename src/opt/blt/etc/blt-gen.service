@@ -9,3 +9,6 @@ Restart=always
 User=nobody
 Group=nogroup
 WorkingDirectory=/opt/blt/bin
+
+[Install]
+WantedBy=multi-user.target

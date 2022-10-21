@@ -27,6 +27,12 @@
 .dechist {
 }
 
+
+.error {
+    font-weight: bolder;
+    font-size: larger;
+}
+
 .nogenlock {
     background: red;
     color: white;
@@ -48,3 +54,6 @@
     font-size: 96px;
 }
 
+.settingsubmit {
+    text-align: right;
+}

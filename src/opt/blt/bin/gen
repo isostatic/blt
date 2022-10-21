@@ -4,8 +4,18 @@ CARD="DeckLink Duo (1)"
 HOST="=== `hostname` ==="
 TOD=0
 FRATE=25
+BACKGROUND=smptehdbars
 
 . /opt/blt/etc/blt-settings.conf
+
+
+BGCLEAN=$BACKGROUND
+if [[ $BACKGROUND =~ "=" ]]
+then
+	BACKGROUND="$BACKGROUND:"
+else
+	BACKGROUND="$BACKGROUND="
+fi
 
 # Pall progressive rate and interlated rate
 RES="1080i25"
@@ -23,7 +33,7 @@ then
 fi
 
 echo "BLT Generator starting on $CARD/$HOST at `date`, at ${FRATE}fps with a TOD adjustment of ${TOD}ms"
-./ffmpeg -stream_loop -1 -f lavfi -i "smptehdbars=rate=$PRATE:size=1920x1080"  \
+./ffmpeg -stream_loop -1 -f lavfi -i "${BACKGROUND}rate=$PRATE:size=1920x1080"  \
 -an \
 -filter_complex "
 drawtext=enable='mod(n,2)':text='Field 1':x=1500:y=100:fontsize=48:fontcolor=white:box=1:boxcolor=black,
@@ -43,9 +53,10 @@ drawtext=text='>%{bincodens\:$TOD}<':x=630:y=680:fontsize=24:fontcolor=white:box
 drawtext=text='$RES':x=(w-tw)/2:y=800:fontsize=48:fontcolor=white:box=1:boxcolor=black,
 drawbox=enable='between(mod(n,$BEEPEVERY),0,15)':x=0:y=0:w=100:h=100:color=red:t=fill,
 drawbox=enable='between(mod(n,$BEEPEVERY),25,40)':x=100:y=0:w=100:h=100:color=lime:t=fill,
-drawbox=enable='between(mod(n,$BEEPEVERY),55,70)':x=100:y=0:w=100:h=100:color=lime:t=fill
+drawbox=enable='between(mod(n,$BEEPEVERY),55,70)':x=100:y=0:w=100:h=100:color=lime:t=fill,
+drawbox=x=0:y=0:w=1920:h=1080:c=white:t=1
 ;
-aevalsrc=0.11*sin(1000*2*PI*t):s=48000:c=2:n=1920,asplit=16[il][ir][ic3][ic4][ic5][ic6][ic7][ic8][ic9][ic10][ic11][ic12][ic13][ic14][ic15][ic16];
+aevalsrc=0.128*sin(1000*2*PI*t):s=48000:c=2:n=1920,asplit=16[il][ir][ic3][ic4][ic5][ic6][ic7][ic8][ic9][ic10][ic11][ic12][ic13][ic14][ic15][ic16];
 [il]aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=1,volume=enable='
 between(mod(floor(t*1000),4000),0000,600)
 ':volume=0 [l];

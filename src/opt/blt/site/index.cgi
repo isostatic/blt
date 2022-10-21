@@ -30,19 +30,24 @@ if ($genlockState =~ /NONE/) { $genlockCSS = "nogenlock"; }
 if ($genlockState =~ /Locked/) { $genlockCSS = "genlock"; }
 my $genlock = "<span class='$genlockCSS'>Genlock state: $genlockState</span>";
 
-open(L, "tail $SET_log|");
+open(L, "tail -200 $SET_log|");
 my $out = "";
 while (<L>) {
     # INFO: 2022-01-27 16:47:57 GMT> Current audio delay 373 samples (7 ms). Current Calibrated Video Latency 8 frames (6). 
-    if (/INFO: (....-..-.. ..:..:.. ...)> Current audio delay ([-0-9]+) samples.*Current Calibrated Video Latency ([\-0-9]+) frames \(([0-9]+)\)/) {
+    if (/INFO: (....-..-.. ..:..:.. ...)> Current audio delay ([-0-9]+) samples.*Current Calibrated Video Latency ([-0-9]+) frames \(([-0-9]+)\)/) {
         my $totVid = $3 + $4;
         my $audioMS = int($2 / 48);
-        my $lead = "leading";
-        if ($audioMS > 0) { $lead = "trailing"; }
-        $out = "At $1 (<a onclick='checkNTP();' href='#' id='checkNTP'>Check with NTP</a><span id='ntpres'></span>), audio is $lead by <b>${audioMS}ms</b> ($2 samples). $genlock<br>";
-        $out .= "Video latency calculated at $totVid, with a built in calibration of $4 frames meaning latency = <b>$3 frames</b>.";
-	if ($3 < 0) {
-		$out .= "<br>This either meanst he calibration is off, or the sender's clock isn't synced to the same source as this clock<br>"
+        my $lead = "trailing";
+        my $audioLeadWarning = "";
+        if ($audioMS < 0) { $lead = "leading"; $audioMS = 0-$audioMS; $audioLeadWarning = "<span class='error'>Audio is ahead of video by ${audioMS}ms</span>"; }
+	my $neglat = "";
+        $out = "At $1, audio is $lead by <b>${audioMS}ms</b> ($2 samples). $audioLeadWarning. $genlock<br>";
+	if ($3 < 0) { 
+		$neglat = "<br>Obviously we can't have negative latency, so something isn't calibrated right or the clock is off. <span class='ntp'>checking NTP...</span>"; 
+	}
+        $out .= "Video latency calculated at $totVid, with a built in calibration of $4 frames meaning latency = <b>$3 frames</b>, but this relies on various factors. $neglat<br>";
+	if ($totVid > 50) { 
+		$out .= "That's insanely high, <span class='ntp'>checking NTP...</span>";
 	}
     }
 }
@@ -103,11 +108,13 @@ foreach (reverse sort @recs) {
 }
 $recordings .= "</ul>";
 
+my $utime = time;
 print <<EOF
 <html>
 <head>
-<link href="style.css" rel="stylesheet" />
-<script src='src.js'></script>
+<link href="style.css?s" rel="stylesheet" />
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script> 
+<script src='src.js?w'></script>
 </head>
 <body>
 <h1>Broadcast Latency Tester</h1>
@@ -132,10 +139,12 @@ $decChange
 <p>
 <a href='./latestRecording'>Latest recording</a>
 $recordings
-<a href='doRecording.cgi?e'>Do recording</a>
+<a href='doRecording.cgi?e=$utime'>Do recording</a>
 </p>
 <p>
 This latency tester generates a signal using FFMPEG out of a Blackmagic video card, which has a frame counter burnt into the output<br>
+<br>
+<a href='settings.cgi'>Configure and Calibrate</a><br>
 
 Full details on its purpose and use are <a href='README.html'>in the readme</a>
 </body></html>

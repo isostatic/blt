@@ -5,7 +5,7 @@
 sudo /opt/blt/bin/recordSample.sh > /tmp/recording.txt 2>&1 &
 disown %1
 
-sleep 1
+sleep 3
 
 echo "Location: /blt"
 echo ""

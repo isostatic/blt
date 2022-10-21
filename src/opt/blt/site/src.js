@@ -6,29 +6,14 @@ function toggleTime() {
         startTime();
     }
 }
-function checkNTP() {
-    document.getElementById('checkNTP').innerHTML = "";
-    document.getElementById('ntpres').innerHTML = "Checking NTP...";
-    var request = new XMLHttpRequest();
-    console.log(request);
-    request.onreadystatechange = function () {
-        if ( request.readyState === 4 ) { 
-            document.getElementById('ntpres').innerHTML = request.responseText;
-        }
-    };
-    request.open("GET", "ntp.cgi");
-    request.send();
-}
 function stopTime() {
     runClock = 0;
-    if (document.getElementById('thetime')) {
-        document.getElementById('toggleTime').innerHTML = "Start Clock";
-        document.getElementById('thetime').innerHTML = "..:..:..:..+..ms";
-    }
+    $('#toggleTime').text("Start Clock");
+    $('#thetime').text("..:..:..:..+..ms");
 }
 function startTime() {
     runClock = 1;
-    document.getElementById('toggleTime').innerHTML = "Stop Clock";
+    $('#toggleTime').text("Stop Clock");
     doTime();
 }
 function doTime() {
@@ -51,7 +36,29 @@ function doTime() {
     var subframes = ms % 40;
     subframes = subframes < 10 ? '0'+subframes : subframes;
 
-    document.getElementById('thetime').innerHTML = hrs + ":" + mins + ":" + secs + ":" + frames + "+" + subframes  + "ms";
+    $('#thetime').html(hrs + ":" + mins + ":" + secs + ":" + frames + "+" + subframes  + "ms");
+}
+function doNTP() {
+	$.get({url: "ntp.cgi?d", success: function(d) {
+		// if -100 is returned, latency is 100 frames too high
+		// if 100 is returned, latency is 100 frames too low
+		$(".ntp").html("This reader: " + d);
+	}});
 }
 
 stopTime();
+
+function forceSync() {
+	$(".ntp").html("Re-syncing");
+	$.get({url: "ntp.cgi?forceSync=1", success: function(d) {
+		$(".ntp").html("This reader post sync: " + d);
+	}});
+	$('.ntpsync').hide();
+	return null;
+}
+
+$(function() {
+	if ($(".ntp").length) {
+		doNTP();
+	}
+});

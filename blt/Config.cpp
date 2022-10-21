@@ -61,6 +61,7 @@ BMDConfig::BMDConfig() :
 	m_audioOutputFile(),
 	m_deckLinkName(),
 	m_displayModeName(),
+	m_latencyDecodeLine(665),
 	m_doGenlock(0)
 {
 }
@@ -79,10 +80,14 @@ bool BMDConfig::ParseArguments(int argc,  char** argv)
 	int		ch;
 	bool	displayHelp = false;
 
-	while ((ch = getopt(argc, argv, "d:?h3c:s:v:a:m:n:p:t:b:x:r:g:")) != -1)
+	while ((ch = getopt(argc, argv, "l:d:?h3c:s:v:a:m:n:p:t:b:x:r:g:")) != -1)
 	{
 		switch (ch)
 		{
+			case 'l':
+				m_latencyDecodeLine = atoi(optarg);
+				break;
+
 			case 'd':
 				m_deckLinkIndex = atoi(optarg);
 				break;
@@ -468,6 +473,7 @@ bail:
 		"    -n <frames>          Number of frames to capture (default is unlimited)\n"
 		"    -b <frames>          Calibrate Internal Latency for latency measurement (Default is 6)\n"
 		"    -x <every_frames>    Dump the video frame every X frames (default none)\n"
+		"    -l <line_num>        Line to detect time of day (default 665)\n"
 		"    -r <filename>        Filename a single frame will be written to every X frames\n"
 		"    -g 1                 Detect Genlock presence and exit\n"
 		"\n"
@@ -497,6 +503,7 @@ void BMDConfig::DisplayConfiguration()
 		" - Capture device: %s\n"
 		" - Video mode: %s %s\n"
 		" - Video calibration: %u frames\n"
+		" - Video Latency Detect line: %u\n"
 		" - Pixel format: %s\n"
 		" - Audio channels: %u\n"
 		" - Audio sample depth: %u bit \n",
@@ -504,6 +511,7 @@ void BMDConfig::DisplayConfiguration()
 		m_displayModeName,
 		(m_inputFlags & bmdVideoInputDualStream3D) ? "3D" : "",
                 m_latencyCalibrate,
+                m_latencyDecodeLine,
 		GetPixelFormatName(m_pixelFormat),
 		m_audioChannels,
 		m_audioSampleDepth
