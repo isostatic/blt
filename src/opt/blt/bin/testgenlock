@@ -1,3 +1,3 @@
 #!/bin/bash
 . /opt/blt/etc/blt-settings.conf
-/opt/blt/bin/BLT -d 1 -m 10 -g 1
+/opt/blt/bin/BLT -d $DEVICE -m $DEVICEMODE -g 1
