@@ -129,14 +129,24 @@ This program is licensed under GPL, do whatever you want with it (laugh etc), ju
 
 # TODOs
 
+## Installation
+* detect first time installation and apply recommended settings (including correct card detection)
+* Calibration for audio samples? Currently a few samples off, less than 1ms
+
+## Time based
+* Expose timezone selection in settings.cgi
 * check an NTP daemon is running as well as checking in sync
+
+## Displays
 * Manage older log/capture files
 * Expose older log/capture files
 * Make the graph javascript based slippygraph
-* overlay changes in detected decoder
 * detected decoder code seems to be a bit haywire in recent versions
-* authentication on webpage (based on http header)
-* detect first time installation and apply recommended settings (including correct card detection)
-* Calibration for audio samples? Currently a few samples off, less than 1ms
-* Support more than 1080i25
+* overlay changes in detected decoder
+* Cope better with invalid sources when it comes to the graph (and the detector)
+
+## Core functions
+* Allow authentication on webpage (based on http header perhaps?)
+* Support more than just 1080i25 - UHD for example
+* Record - detect it's working or failed rather than just waiting and hoping
 

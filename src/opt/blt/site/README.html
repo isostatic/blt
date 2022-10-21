@@ -139,15 +139,35 @@
 
 <h1>TODOs</h1>
 
+<h2>Installation</h2>
+
 <ul>
+<li>detect first time installation and apply recommended settings (including correct card detection)</li>
+<li>Calibration for audio samples? Currently a few samples off, less than 1ms</li>
+</ul>
+
+<h2>Time based</h2>
+
+<ul>
+<li>Expose timezone selection in settings.cgi</li>
 <li>check an NTP daemon is running as well as checking in sync</li>
+</ul>
+
+<h2>Displays</h2>
+
+<ul>
 <li>Manage older log/capture files</li>
 <li>Expose older log/capture files</li>
 <li>Make the graph javascript based slippygraph</li>
-<li>overlay changes in detected decoder</li>
 <li>detected decoder code seems to be a bit haywire in recent versions</li>
-<li>authentication on webpage (based on http header)</li>
-<li>detect first time installation and apply recommended settings (including correct card detection)</li>
-<li>Calibration for audio samples? Currently a few samples off, less than 1ms</li>
-<li>Support more than 1080i25</li>
+<li>overlay changes in detected decoder</li>
+<li>Cope better with invalid sources when it comes to the graph (and the detector)</li>
+</ul>
+
+<h2>Core functions</h2>
+
+<ul>
+<li>Allow authentication on webpage (based on http header perhaps?)</li>
+<li>Support more than just 1080i25 - UHD for example</li>
+<li>Record - detect it's working or failed rather than just waiting and hoping</li>
 </ul>
