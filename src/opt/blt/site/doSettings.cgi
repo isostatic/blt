@@ -29,12 +29,14 @@ while (<SETTINGS>) {
     # optional settings
     if (param("newHOST") =~ /./) { my $n = param("newHOST"); $line =~ s/^HOST=.*/HOST="=== $n ==="/g; }
     if (param("newBACK") =~ /./) { my $n = param("newBACK"); $line =~ s/^BACKGROUND=.*/BACKGROUND=$n/g; }
+    if (param("newGTYPE") =~ /./) { my $n = param("newGTYPE"); $line =~ s/^GTYPE=.*/GTYPE=$n/g; }
     $newSettings .= $line;
 }
 close(SETTINGS);
 if ($newSettings !~ /BACKGROUND=/) { if (param("newBACK") =~ /./) { my $n = param("newBACK"); $newSettings .= "BACKGROUND=$n\n"; } }
 if ($newSettings !~ /HOST=/) { if (param("newHOST") =~ /./) { my $n = param("newHOST"); $newSettings .= "HOST=$n\n"; } }
 if ($newSettings !~ /NTP_SVR=/) { if (param("newNTP") =~ /./) { my $n = param("newNTP"); $newSettings .= "NTP_SVR=$n\n"; } }
+if ($newSettings !~ /GTYPE=/) { if (param("newGTYPE") =~ /./) { my $n = param("newGTYPE"); $newSettings .= "GTYPE=$n\n"; } }
 #print "OK: $change\n";
 #print "=========== FROM ===========\n";
 #print $baseSettings;

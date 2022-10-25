@@ -2,6 +2,7 @@
 set -e
 FRAMES=600
 NAME=appapp
+GTYPE=sqrt
 . /opt/blt/etc/blt-settings.conf
 
 DATE=`date +"%Y%m%d-%H%M%S"`
@@ -25,7 +26,7 @@ sudo systemctl start blt-read.service
 /opt/blt/bin/ffmpeg -f rawvideo -vcodec rawvideo -pix_fmt uyvy422 -s 1920x1080 -r 25 -i $TMPDIR/$NAME.yuv -f s16le -acodec pcm_s16le -ar 48000 -ac 2 -i $TMPDIR/$NAME.pcm -y -vcodec libx264 $TMPDIR/$NAME.m4v \
 -filter_complex \
 "
-[1]showwaves=split_channels=1:mode=line:s=1920x200[vol];
+[1]showwaves=split_channels=1:mode=cline:scale=$GTYPE:s=1920x200[vol];
 [0][vol]overlay=10:main_h-overlay_h-10
 "
 
@@ -33,7 +34,7 @@ sudo systemctl start blt-read.service
 /opt/blt/bin/ffmpeg -f rawvideo -vcodec rawvideo -pix_fmt uyvy422 -s 1920x1080 -r 25 -i $TMPDIR/$NAME.yuv -f s16le -acodec pcm_s16le -ar 48000 -ac 2 -i $TMPDIR/$NAME.pcm -y -vcodec mjpeg \
 -filter_complex \
 "
-[1]showwaves=split_channels=1:mode=line:s=1920x200[vol];
+[1]showwaves=split_channels=1:mode=cline:scale=$GTYPE:s=1920x200[vol];
 [0][vol]overlay=10:main_h-overlay_h-10
 " \
 $TMPDIR/$SUBDIR/%04d.jpg

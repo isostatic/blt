@@ -49,6 +49,7 @@ sub listDeviceById($) {
 # smptehdbars, smptebars, pal75bars, pal100bars, rgbtestsrc, testsrc, testsrc2, yuvtestsrc, colorspectrum
 # colorchart?
 my @backgroundOptions = qw/smptehdbars;SMPTE_HD_Bars smptebars;SMPTE_SD_Bars pal75bars;PAL_Bars_75% pal100bars;PAL_Bars_100% rgbtestsrc;RGB testsrc;Test_Source_1 testsrc2;Test_Source_2 yuvtestsrc;YUV_Test_Source colorspectrum;Colour_Spectrum color=c=blue;Splash_Blue color=c=red;Splash_Red color=c=green;Splash_Green/;
+my @gtypeOptions = qw/lin;Linear log;Logarithmic sqrt;Square_Root cbrt;Cube_Root/;
 
 
 my $curHost = `hostname`;
@@ -58,6 +59,7 @@ my $curCALIB = 3;
 my $curCARD = "";
 my $curDEVICE = "";
 my $curMODE = "";
+my $curGTYPE = "sqrt";
 my $curNTP = "pool.ntp.org";
 
 open(SETTINGS, "/opt/blt/etc/blt-settings.conf");
@@ -67,6 +69,7 @@ while (<SETTINGS>) {
     if (/^CALIB=([0-9]*)/) { $curCALIB = $1; next; }
     if (/^CARD=(.*)/) { $curCARD = $1; $curCARD =~ s/"//g; }
     if (/^DEVICE=(.*)/) { $curDEVICE = $1; next; }
+    if (/^GTYPE=(.*)/) { $curGTYPE = $1; next; }
     if (/^DEVICEMODE=(.*)/) { $curMODE = $1; next; }
     if (/^BACKGROUND=(.*)/) { $curBACK = $1; next; }
     if (/^NTP_SVR=(.*)/) { $curNTP = $1; next; }
@@ -194,7 +197,7 @@ foreach my $id (sort keys %{$modes->{id}}) {
     if ($id eq $curMODE) { $niceMode = $name; $sel = "selected"; }
     $newMode .= "<option $sel value=\"$id\">$name</option>";
 }
-$newMode .= "</select>";
+$newMode .= "</select>\n";
 
 my $newBackground = "<select name='newBACK'>";
 foreach my $cde (sort @backgroundOptions) {
@@ -204,7 +207,17 @@ foreach my $cde (sort @backgroundOptions) {
     if ($id eq $curBACK) { $sel = "selected"; }
     $newBackground .= "<option $sel value=\"$id\">$name</option>";
 }
-$newBackground .= "</select>";
+$newBackground .= "</select>\n";
+
+my $newGType = "<select name='newGTYPE'>";
+foreach my $cde (sort @gtypeOptions) {
+    my ($id, $name) = split(/;/, $cde);
+    $name =~ s/_/ /g;
+    my $sel = "";
+    if ($id eq $curGTYPE) { $sel = "selected"; }
+    $newGType .= "<option $sel value=\"$id\">$name</option>";
+}
+$newGType .= "</select>\n";
 
 print "<tr><td>Generator Card</td><td>$curCARD</td><td>$newGenCard</td></tr>";
 print "<tr><td>Reader Card</td><td>$niceCurDevice</td><td>$newReadCard</td></tr>";
@@ -226,12 +239,13 @@ print "</table>";
 print "<input type='hidden' name='restartgen' value='1'><input type='hidden' name='restartread' value='1'>";
 print "</form>";
 
-print "<h2>Operational Settings</h2>";
-print "<form action='doSettings.cgi' method='post'><table> <tr><th>Option</th><th>Current Setting</th><th>New Setting</th></tr>";
-print "<tr><td>Background</td><td>$curBACK</td><td>$newBackground</td></tr>";
-print "<tr><td>Message</td><td>$curHost</td><td><input name='newHOST' size='50' value='$curHost'></td></tr>";
-print "<tr><td class='settingsubmit' colspan='3'><input type='submit' name='change' value='Save Operational Settings'></td></tr>";
-print "</table>";
+print "<h2>Operational Settings</h2>\n\n";
+print "<form action='doSettings.cgi' method='post'><table> <tr><th>Option</th><th>Current Setting</th><th>New Setting</th></tr>\n";
+print "<tr><td>Waveform type</td><td>$curGTYPE</td><td>$newGType</td></tr>\n";
+print "<tr><td>Background</td><td>$curBACK</td><td>$newBackground</td></tr>\n";
+print "<tr><td>Message</td><td>$curHost</td><td><input name='newHOST' size='50' value='$curHost'></td></tr>\n";
+print "<tr><td class='settingsubmit' colspan='3'><input type='submit' name='change' value='Save Operational Settings'></td></tr>\n";
+print "</table>\n";
 print "<input type='hidden' name='restartgen' value='1'><input type='hidden' name='restartread' value='0'>";
 print "</form>";
 
