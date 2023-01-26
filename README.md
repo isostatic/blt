@@ -124,6 +124,7 @@ This decodes the time of day, there are caveat. The time of day is measured by c
 
 This program is licensed under GPL, do whatever you want with it (laugh etc), just give back your changes. The C++ code for the Capture program is based on the blackmagic sample code from the decklink drivers, with the license in the header of the files. The modifications to ffmpeg are in [github](https://github.com/isostatic/FFmpeg) (because the code is awful and far to embarrasing to mention to geniuses behind ffmpeg). The binaries provided in this repo are built under x64/ubuntu 20.04 with desktopvideo 12.2.2a6
 
+The "1-20" count on channel 2 is from https://freesound.org/people/EnjoyPA/sounds/203066/, user "EnjoyPA", released under CC0
 
 ---
 
