@@ -6,7 +6,12 @@ if [[ "x$1" == "xdecode" ]]
 then
 # Decode the current frame's decoder
 	ENCNAME=`/opt/blt/bin/ffmpeg -f rawvideo -vcodec rawvideo -pix_fmt uyvy422 -s 1920x1080 -r 25 -i $WORKDIR/current.yuv -y  -filter:v "crop=1920:60:0:330" -f apng - 2>/dev/null | tesseract - - -l eng --psm 7 2>/dev/null | grep ... | sed -e 's/^[= ]*//' -e 's/[ =]*$//'`
-	echo "$DATE $ENCNAME" >> $WORKDIR/detected_decoder.log
+        if [[ "$ENCNAME" =~ "===" ]]
+        then
+	    echo "$DATE $ENCNAME" >> $WORKDIR/detected_decoder.log
+        else
+	    echo "$DATE | === No BLT signal === |" >> $WORKDIR/detected_decoder.log
+        fi
         chmod 666 $WORKDIR/detected_decoder.log
 else 
 	# Convert to a snapshot picture
