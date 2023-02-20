@@ -85,6 +85,7 @@ static unsigned long    g_lastSilenceStartSample = -10;
 static unsigned long    g_lastAudioSilenceStart = -10;
 static unsigned long    g_lastAudioSilenceEnd = -10;
 static unsigned long    g_silentSamples = 0;
+static unsigned long    g_silentSamplesCH2 = 0;
 static signed long    g_audioDelay = 0;
 
 
@@ -295,12 +296,25 @@ HRESULT DeckLinkBLTDelegate::VideoInputFrameArrived(IDeckLinkVideoInputFrame* vi
         short ch1 = *afb1;
         short ch2 = *afb2;
 
+// TODO -- detect silence on channel 2 when a new option is passed to say it's not glitz (permament tone)
         for (int sample = 0; sample < 1920; sample++) {
             short val1 = *afb1;
             afb1++;
             short val2 = *afb1;
             afb1++;
 
+            if (val2 > -300 && val2 < 300) {
+                // Channel 2 is silent, could be transitory
+                g_silentSamplesCH2++;
+                if (g_silentSamplesCH2 > 100) {
+                    // Channel 2 has been silent for at least 100 samples. At 1khz tone that's 2 whole cycles
+                }
+            } else {
+                if (g_silentSamplesCH2 > 1000) {
+                    printf("CHANNEL 2 Silence ended after %lu samples\n", g_silentSamplesCH2);
+                }
+                g_silentSamplesCH2=0;
+            }
 
             // Value is between 32k to 32k. Some decoders decode silence as zero, others vary. Appear can bobble along upto 100. Actual tone is going to the thousands, so assuming anything 0 +/- 300 should be silent -- if it's tone it won't stay there fore many samples, at 1khz it has a full sine wave in 48 samples and goes upto thousands
             if (val1 > -300 && val1 < 300) {
