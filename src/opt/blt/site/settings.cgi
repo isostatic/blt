@@ -239,8 +239,8 @@ my $sel0 = "";
 my $sel1 = "";
 if ($curCH2NODIP == 0) { $sel0 = "selected"; }
 if ($curCH2NODIP == 1) { $sel1 = "selected"; }
-$newCH2NODIP .= "<option $sel1 value=\"0\">Dip twice</option>";
-$newCH2NODIP .= "<option $sel0 value=\"1\">Always On</option>";
+$newCH2NODIP .= "<option $sel0 value=\"0\">Dip twice</option>";
+$newCH2NODIP .= "<option $sel1 value=\"1\">Always On</option>";
 $newCH2NODIP .= "</select>\n";
 
 print "<tr><td>Generator Card</td><td>$curCARD</td><td>$newGenCard</td></tr>";
