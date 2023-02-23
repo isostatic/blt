@@ -50,6 +50,7 @@ sub listDeviceById($) {
 # colorchart?
 my @backgroundOptions = qw/smptehdbars;SMPTE_HD_Bars smptebars;SMPTE_SD_Bars pal75bars;PAL_Bars_75% pal100bars;PAL_Bars_100% rgbtestsrc;RGB testsrc;Test_Source_1 testsrc2;Test_Source_2 yuvtestsrc;YUV_Test_Source colorspectrum;Colour_Spectrum color=c=blue;Splash_Blue color=c=red;Splash_Red color=c=green;Splash_Green/;
 my @gtypeOptions = qw/lin;Linear log;Logarithmic sqrt;Square_Root cbrt;Cube_Root/;
+my @ch2WavOptions = qw|./silence.wav ./1-20.wav ./0-99.wav|;
 
 
 my $curHost = `hostname`;
@@ -60,6 +61,10 @@ my $curCARD = "";
 my $curDEVICE = "";
 my $curMODE = "";
 my $curGTYPE = "sqrt";
+
+my $curCH2NODIP = 0;
+my $curCH2WAV = "./silence.wav";
+
 my $curNTP = "pool.ntp.org";
 
 open(SETTINGS, "/opt/blt/etc/blt-settings.conf");
@@ -70,6 +75,8 @@ while (<SETTINGS>) {
     if (/^CARD=(.*)/) { $curCARD = $1; $curCARD =~ s/"//g; }
     if (/^DEVICE=(.*)/) { $curDEVICE = $1; next; }
     if (/^GTYPE=(.*)/) { $curGTYPE = $1; next; }
+    if (/^CH2WAV=(.*)/) { $curCH2WAV = $1; $curCH2WAV =~ s/"//g; next; }
+    if (/^CH2NODIP=(.*)/) { $curCH2NODIP = $1; next; }
     if (/^DEVICEMODE=(.*)/) { $curMODE = $1; next; }
     if (/^BACKGROUND=(.*)/) { $curBACK = $1; next; }
     if (/^NTP_SVR=(.*)/) { $curNTP = $1; next; }
@@ -219,6 +226,23 @@ foreach my $cde (sort @gtypeOptions) {
 }
 $newGType .= "</select>\n";
 
+my $newCH2WAV = "<select name='newCH2WAV'>";
+foreach my $name (sort @ch2WavOptions) {
+    my $sel = "";
+    if ($name eq $curCH2WAV) { $sel = "selected"; }
+    $newCH2WAV .= "<option $sel value=\"$name\">$name</option>";
+}
+$newCH2WAV .= "</select>\n";
+
+my $newCH2NODIP = "<select name='newCH2NODIP'>";
+my $sel0 = "";
+my $sel1 = "";
+if ($curCH2NODIP == 0) { $sel0 = "selected"; }
+if ($curCH2NODIP == 1) { $sel1 = "selected"; }
+$newCH2NODIP .= "<option $sel1 value=\"0\">Dip twice</option>";
+$newCH2NODIP .= "<option $sel0 value=\"1\">Always On</option>";
+$newCH2NODIP .= "</select>\n";
+
 print "<tr><td>Generator Card</td><td>$curCARD</td><td>$newGenCard</td></tr>";
 print "<tr><td>Reader Card</td><td>$niceCurDevice</td><td>$newReadCard</td></tr>";
 print "<tr><td>Reader Mode</td><td>$niceMode</td><td>$newMode</td></tr>";
@@ -241,7 +265,9 @@ print "</form>";
 
 print "<h2>Operational Settings</h2>\n\n";
 print "<form action='doSettings.cgi' method='post'><table> <tr><th>Option</th><th>Current Setting</th><th>New Setting</th></tr>\n";
+print "<tr><td>Channel 2 Always on (don't dip tone)</td><td>$curCH2NODIP</td><td>$newCH2NODIP</td></tr>\n";
 print "<tr><td>Waveform type</td><td>$curGTYPE</td><td>$newGType</td></tr>\n";
+print "<tr><td>Channel 2 Overlay wav</td><td>$curCH2WAV</td><td>$newCH2WAV</td></tr>\n";
 print "<tr><td>Background</td><td>$curBACK</td><td>$newBackground</td></tr>\n";
 print "<tr><td>Message</td><td>$curHost</td><td><input name='newHOST' size='50' value='$curHost'></td></tr>\n";
 print "<tr><td class='settingsubmit' colspan='3'><input type='submit' name='change' value='Save Operational Settings'></td></tr>\n";

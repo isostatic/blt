@@ -6,11 +6,16 @@ TOD=0
 FRATE=25
 BACKGROUND=smptehdbars
 
-. /opt/blt/etc/blt-settings.conf
-
 # https://freesound.org/people/EnjoyPA/sounds/203066/
 CH2WAV="./1-20.wav"
+CH2WAV="./0-99.wav"
 CH2WAV="./silence.wav"
+
+# Don't dip channel 2
+CH2NODIP=0
+
+. /opt/blt/etc/blt-settings.conf
+
 
 BGCLEAN=$BACKGROUND
 if [[ $BACKGROUND =~ "=" ]]
@@ -35,6 +40,14 @@ then
  BEEPEVERY=120
 fi
 
+# Only show green box if we genuinely mute ch2
+CH2BOX="drawbox=enable='between(mod(n,$BEEPEVERY),25,40)':x=100:y=0:w=100:h=100:color=lime:t=fill,drawbox=enable='between(mod(n,$BEEPEVERY),55,70)':x=100:y=0:w=100:h=100:color=lime:t=fill,"
+
+if [[ "x$CH2NODIP" == "x1" ]]
+then
+CH2BOX=""
+fi
+
 echo "BLT Generator starting on $CARD/$HOST at `date`, at ${FRATE}fps with a TOD adjustment of ${TOD}ms"
 ./ffmpeg -stream_loop -1 -f lavfi -i "${BACKGROUND}rate=$PRATE:size=1920x1080" -stream_loop -1 -i $CH2WAV \
 -an \
@@ -55,8 +68,7 @@ drawtext=text='>%{bincode\:$TOD}<':x=630:y=660:fontsize=24:fontcolor=white:box=1
 drawtext=text='>%{bincodens\:$TOD}<':x=630:y=680:fontsize=24:fontcolor=white:box=1:boxcolor=black,
 drawtext=text='$RES':x=(w-tw)/2:y=800:fontsize=48:fontcolor=white:box=1:boxcolor=black,
 drawbox=enable='between(mod(n,$BEEPEVERY),0,15)':x=0:y=0:w=100:h=100:color=red:t=fill,
-drawbox=enable='between(mod(n,$BEEPEVERY),25,40)':x=100:y=0:w=100:h=100:color=lime:t=fill,
-drawbox=enable='between(mod(n,$BEEPEVERY),55,70)':x=100:y=0:w=100:h=100:color=lime:t=fill,
+$CH2BOX
 drawbox=x=0:y=0:w=1920:h=1080:c=white:t=1
 ;
 aevalsrc=0.128*sin(1000*2*PI*t):s=48000:c=2:n=1920,asplit=16[il][ir][ic3][ic4][ic5][ic6][ic7][ic8][ic9][ic10][ic11][ic12][ic13][ic14][ic15][ic16];
@@ -66,7 +78,7 @@ between(mod(floor(t*1000),4000),0000,600)
 [ir]aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=1,volume=enable='
 between(mod(floor(t*1000),4000),1000,1600)+
 between(mod(floor(t*1000),4000),2200,2800)
-':volume=0 [r];
+':volume=$CH2NODIP [r];
 [ic3]aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=1,volume=enable='
 between(mod(floor(t*1000),12000),3750,4000)+
 between(mod(floor(t*1000),12000),4250,4500)+
