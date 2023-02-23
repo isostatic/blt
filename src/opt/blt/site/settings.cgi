@@ -237,10 +237,13 @@ $newCH2WAV .= "</select>\n";
 my $newCH2NODIP = "<select name='newCH2NODIP'>";
 my $sel0 = "";
 my $sel1 = "";
+my $sel2 = "";
 if ($curCH2NODIP == 0) { $sel0 = "selected"; }
 if ($curCH2NODIP == 1) { $sel1 = "selected"; }
-$newCH2NODIP .= "<option $sel0 value=\"0\">Dip twice</option>";
+if ($curCH2NODIP == 2) { $sel2 = "selected"; }
 $newCH2NODIP .= "<option $sel1 value=\"1\">Always On</option>";
+$newCH2NODIP .= "<option $sel0 value=\"0\">Dip Tone twice</option>";
+$newCH2NODIP .= "<option $sel2 value=\"2\">Dip Tone AND wav twice</option>";
 $newCH2NODIP .= "</select>\n";
 
 print "<tr><td>Generator Card</td><td>$curCARD</td><td>$newGenCard</td></tr>";
