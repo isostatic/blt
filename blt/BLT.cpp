@@ -518,9 +518,9 @@ int main(int argc, char *argv[])
     }
     result = deckLinkConfiguration->SetInt(0x64757078, 0x66647570);
     if (FAILED(result))
-        printf("Can't force decklink to full duplex");
+        printf("Can't force decklink to full duplex\n");
     else
-        printf("Force decklink to full duplex");
+        printf("Force decklink to full duplex\n");
 
     // Check the Genlock status
     if (g_config.m_doGenlock == 1) {
