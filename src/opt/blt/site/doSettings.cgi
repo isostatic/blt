@@ -30,6 +30,8 @@ while (<SETTINGS>) {
     if (param("newHOST") =~ /./) { my $n = param("newHOST"); $line =~ s/^HOST=.*/HOST="=== $n ==="/g; }
     if (param("newBACK") =~ /./) { my $n = param("newBACK"); $line =~ s/^BACKGROUND=.*/BACKGROUND=$n/g; }
     if (param("newGTYPE") =~ /./) { my $n = param("newGTYPE"); $line =~ s/^GTYPE=.*/GTYPE=$n/g; }
+    if (param("newCH2WAV") =~ /./) { my $n = param("newCH2WAV"); $line =~ s/^CH2WAV=.*/CH2WAV=$n/g; }
+    if (param("newCH2NODIP") =~ /./) { my $n = param("newCH2NODIP"); $line =~ s/^CH2NODIP=.*/CH2NODIP=$n/g; }
     $newSettings .= $line;
 }
 close(SETTINGS);
@@ -37,6 +39,8 @@ if ($newSettings !~ /BACKGROUND=/) { if (param("newBACK") =~ /./) { my $n = para
 if ($newSettings !~ /HOST=/) { if (param("newHOST") =~ /./) { my $n = param("newHOST"); $newSettings .= "HOST=$n\n"; } }
 if ($newSettings !~ /NTP_SVR=/) { if (param("newNTP") =~ /./) { my $n = param("newNTP"); $newSettings .= "NTP_SVR=$n\n"; } }
 if ($newSettings !~ /GTYPE=/) { if (param("newGTYPE") =~ /./) { my $n = param("newGTYPE"); $newSettings .= "GTYPE=$n\n"; } }
+if ($newSettings !~ /CH2WAV=/) { if (param("newCH2WAV") =~ /./) { my $n = param("newCH2WAV"); $newSettings .= "CH2WAV=$n\n"; } }
+if ($newSettings !~ /CH2NODIP=/) { if (param("newCH2NODIP") =~ /./) { my $n = param("newCH2NODIP"); $newSettings .= "CH2NODIP=$n\n"; } }
 #print "OK: $change\n";
 #print "=========== FROM ===========\n";
 #print $baseSettings;
