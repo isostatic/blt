@@ -125,17 +125,24 @@ HRESULT DeckLinkBLTDelegate::VideoInputFrameArrived(IDeckLinkVideoInputFrame* vi
     void*                                audioFrameBytes;
     int                                 dumpVidFile = -1;
     int                                 dumpAudFile = -1;
-    if (!videoFrame || !audioFrame)
-    {
-        printf("ERROR Video/Audio Mismatch\n");
-    }
+
+    // Generate the timestamp
+    time_t rawtime;
+    struct tm *lt;
+    char datetime[80];
+    time( &rawtime );
+    lt = localtime( &rawtime );
+    strftime(datetime,80,"%Y-%m-%d %H:%M:%S %Z", lt);
+
+    if (!videoFrame) { printf("%s ERROR Video/Audio Mismatch - no Video\n", datetime); }
+    if (!audioFrame) { printf("%s ERROR Video/Audio Mismatch - no Audio\n", datetime); }
 
     // Handle Video Frame
     if (videoFrame)
     {
 	if (videoFrame->GetFlags() & bmdFrameHasNoInputSource)
 	{
-		printf("Frame received (#%lu) - No input signal detected\n", g_video_frameCount);
+		printf("%s Frame received (#%lu) - No input signal detected\n", datetime, g_video_frameCount);
 	}
         // The BLT flashes Red in the top 100x100 every 4 seconds when audio goes, and Green (twice) in the next 100x100. 
         // As such, add the Lumas of the pixels together
@@ -247,7 +254,7 @@ HRESULT DeckLinkBLTDelegate::VideoInputFrameArrived(IDeckLinkVideoInputFrame* vi
                 if (g_lastDecodeTime < 1600000000 || g_lastDecodeTime > 2500000000) {
                     // Invalid time frame -- well outside the expected time boundaries
                 } else if (g_currentLatency != deltaF) {
-                    printf("INFO: Change in Latency by %ld frames, new latency %ld frames (%ld pre calibration)\n", deltaF - g_currentLatency, deltaF, g_frameCalibration + deltaF);
+                    printf("INFO: %s Change in Latency by %ld frames, new latency %ld frames (%ld pre calibration)\n", datetime, deltaF - g_currentLatency, deltaF, g_frameCalibration + deltaF);
                     g_currentLatency = deltaF;
                 }
             }
@@ -322,23 +329,11 @@ HRESULT DeckLinkBLTDelegate::VideoInputFrameArrived(IDeckLinkVideoInputFrame* vi
                     g_silentSamplesCH++;
                     if (g_silentSamplesCH == 100) {
                         // Channel has been silent for at least 100 samples. At 1khz tone that's 2 whole cycles
-                        time_t rawtime;
-                        struct tm *lt;
-                        char buffer[80];
-                        time( &rawtime );
-                        lt = localtime( &rawtime );
-                        strftime(buffer,80,"%Y-%m-%d %H:%M:%S %Z", lt);
-                        printf("%s CHANNEL %d Silence Starts after %lu samples\n", buffer, g_config.m_silenceDetect, g_silentSamplesCH);
+                        printf("%s CHANNEL %d Silence Starts after %lu samples\n", datetime, g_config.m_silenceDetect, g_silentSamplesCH);
                     }
                 } else {
                     if (g_silentSamplesCH > 100) {
-                        time_t rawtime;
-                        struct tm *lt;
-                        char buffer[80];
-                        time( &rawtime );
-                        lt = localtime( &rawtime );
-                        strftime(buffer,80,"%Y-%m-%d %H:%M:%S %Z", lt);
-                        printf("%s CHANNEL %d Noisy after %lu silent samples\n", buffer, g_config.m_silenceDetect, g_silentSamplesCH);
+                        printf("%s CHANNEL %d Noisy after %lu silent samples\n", datetime, g_config.m_silenceDetect, g_silentSamplesCH);
                     }
                     g_silentSamplesCH=0;
                 }
@@ -359,15 +354,8 @@ HRESULT DeckLinkBLTDelegate::VideoInputFrameArrived(IDeckLinkVideoInputFrame* vi
                     // End of silence
                     signed long audioDelay = g_lastAudioSilenceStart - g_lastSilenceStartSample;
                     if (DEBUG > 3) printf("DEBUG: Silence ended after %lu samples, val=%d sample %lu>%lu, should have started at %lu. Delay = %ld samples\n", g_silentSamples, val1, g_lastAudioSilenceStart, g_lastAudioSilenceEnd, g_lastSilenceStartSample, audioDelay);
-                    time_t rawtime;
-                    struct tm *info;
-                    char buffer[80];
-                    time( &rawtime );
-                    info = localtime( &rawtime );
-                    strftime(buffer,80,"%Y-%m-%d %H:%M:%S %Z", info);
-//                    printf("%s: ", buffer);
                     long msDelay = round(audioDelay/48);
-                    printf("INFO: %s> Current audio delay %ld samples (%ld ms). Current Calibrated Video Latency %d frames (%d). \n", buffer, audioDelay, msDelay, g_currentLatency, g_frameCalibration);
+                    printf("INFO: %s> Current audio delay %ld samples (%ld ms). Current Calibrated Video Latency %d frames (%d). \n", datetime, audioDelay, msDelay, g_currentLatency, g_frameCalibration);
                     g_audioDelay = audioDelay;
                 } else if (g_silentSamples > 5) {
                     signed long audioDelay = g_lastAudioSilenceStart - g_lastSilenceStartSample;
