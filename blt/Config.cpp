@@ -490,7 +490,9 @@ bail:
 		"    -g 1                 Detect Genlock presence and exit\n"
 		"    -z 0                 Debug level (0-9, default 0)\n"
 		"    -y 2                 Detect silence on channel (1-2, default 0 - don't detect)\n"
-		"\n"
+                "\n"
+                " -- BLT Compiled %s %s --\n"
+		"\n", __DATE__, __TIME__
 	);
 
 	if (deckLinkIterator != NULL)
