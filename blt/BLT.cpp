@@ -124,6 +124,7 @@ HRESULT DeckLinkBLTDelegate::VideoInputFrameArrived(IDeckLinkVideoInputFrame* vi
     void*                                frameBytes;
     void*                                audioFrameBytes;
     int                                 dumpVidFile = -1;
+    int                                 dumpAudFile = -1;
     if (!videoFrame || !audioFrame)
     {
         printf("ERROR Video/Audio Mismatch\n");
@@ -393,9 +394,28 @@ HRESULT DeckLinkBLTDelegate::VideoInputFrameArrived(IDeckLinkVideoInputFrame* vi
         if (g_dumpEvery > 0 && g_video_frameCount % g_dumpEvery == 0) {
             // Dump raw video and audio fame every N frames
 //		printf("Dump received (#%lu - dumping every %lu to %s) \n", g_video_frameCount, g_dumpEvery, g_config.m_videoFrameDump);
+                // dump audio
+                size_t pcmStrLen = strlen(g_config.m_videoFrameDump);
+                char* pcmStr = new char[pcmStrLen];
+                strncpy(pcmStr, g_config.m_videoFrameDump, pcmStrLen);
+                pcmStr[pcmStrLen] = '\0';
+                pcmStr[pcmStrLen - 1] = 'm';
+                pcmStr[pcmStrLen - 2] = 'c';
+                pcmStr[pcmStrLen - 3] = 'p';
+
+                if (DEBUG > 1) {
+                    printf("Dump YUV to %s and PCM to %s\n", g_config.m_videoFrameDump, pcmStr);
+                }
+
 		dumpVidFile = open(g_config.m_videoFrameDump, O_WRONLY|O_CREAT|O_TRUNC, 0664);
 		write(dumpVidFile, frameBytes, videoFrame->GetRowBytes() * videoFrame->GetHeight());
 		close(dumpVidFile);
+
+		dumpAudFile = open(pcmStr, O_WRONLY|O_CREAT|O_TRUNC, 0664);
+                write(dumpAudFile, audioFrameBytes, audioFrame->GetSampleFrameCount() * g_config.m_audioChannels * (g_config.m_audioSampleDepth / 8));
+                close(dumpAudFile);
+
+                delete[] pcmStr;
         }
 
     if (g_config.m_maxFrames > 0 && videoFrame && g_video_frameCount >= g_config.m_maxFrames)
