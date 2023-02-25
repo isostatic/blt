@@ -85,7 +85,7 @@ static unsigned long    g_lastSilenceStartSample = -10;
 static unsigned long    g_lastAudioSilenceStart = -10;
 static unsigned long    g_lastAudioSilenceEnd = -10;
 static unsigned long    g_silentSamples = 0;
-static unsigned long    g_silentSamplesCH2 = 0;
+static unsigned long    g_silentSamplesCH = 0;
 static signed long    g_audioDelay = 0;
 
 
@@ -296,24 +296,51 @@ HRESULT DeckLinkBLTDelegate::VideoInputFrameArrived(IDeckLinkVideoInputFrame* vi
         short ch1 = *afb1;
         short ch2 = *afb2;
 
-// TODO -- detect silence on channel 2 when a new option is passed to say it's not glitz (permament tone)
+        // I suspect this breaks if we don't use channels=2, TODO fix that
         for (int sample = 0; sample < 1920; sample++) {
             short val1 = *afb1;
             afb1++;
-            short val2 = *afb1;
+            afb2++;
+            short val2 = *afb2;
             afb1++;
+            afb2++;
+            //printf("CHANNEL 1='%d' 2='%d' Silence for %lu samples\n", val1, val2, g_silentSamplesCH);
 
-            if (val2 > -300 && val2 < 300) {
-                // Channel 2 is silent, could be transitory
-                g_silentSamplesCH2++;
-                if (g_silentSamplesCH2 > 100) {
-                    // Channel 2 has been silent for at least 100 samples. At 1khz tone that's 2 whole cycles
+            // Output specific silence start/end messages if told to
+            // Silence isn't always encoded as silence, +/-300 is about 1% of maximum value
+            if (g_config.m_silenceDetect != 0) {
+                short val = val2;
+                if (g_config.m_silenceDetect == 1) {
+                    val = val1;
+                } 
+                if (g_config.m_silenceDetect == 2) {
+                    val = val2;
+                } 
+                if (val > -300 && val < 300) {
+                    // Channel is silent, could be transitory, certainly the waveform will pass through this every cycle of a tone
+                    g_silentSamplesCH++;
+                    if (g_silentSamplesCH == 100) {
+                        // Channel has been silent for at least 100 samples. At 1khz tone that's 2 whole cycles
+                        time_t rawtime;
+                        struct tm *lt;
+                        char buffer[80];
+                        time( &rawtime );
+                        lt = localtime( &rawtime );
+                        strftime(buffer,80,"%Y-%m-%d %H:%M:%S %Z", lt);
+                        printf("%s CHANNEL %d Silence Starts after %lu samples\n", buffer, g_config.m_silenceDetect, g_silentSamplesCH);
+                    }
+                } else {
+                    if (g_silentSamplesCH > 100) {
+                        time_t rawtime;
+                        struct tm *lt;
+                        char buffer[80];
+                        time( &rawtime );
+                        lt = localtime( &rawtime );
+                        strftime(buffer,80,"%Y-%m-%d %H:%M:%S %Z", lt);
+                        printf("%s CHANNEL %d Noisy after %lu silent samples\n", buffer, g_config.m_silenceDetect, g_silentSamplesCH);
+                    }
+                    g_silentSamplesCH=0;
                 }
-            } else {
-                if (g_silentSamplesCH2 > 1000) {
-                    printf("CHANNEL 2 Silence ended after %lu samples\n", g_silentSamplesCH2);
-                }
-                g_silentSamplesCH2=0;
             }
 
             // Value is between 32k to 32k. Some decoders decode silence as zero, others vary. Appear can bobble along upto 100. Actual tone is going to the thousands, so assuming anything 0 +/- 300 should be silent -- if it's tone it won't stay there fore many samples, at 1khz it has a full sine wave in 48 samples and goes upto thousands
@@ -470,6 +497,11 @@ int main(int argc, char *argv[])
         g_config.DisplayUsage(exitStatus);
         goto bail;
     }
+
+    // Set debug
+    DEBUG = g_config.m_debug;
+    printf("Debug level %d\n", DEBUG);
+
 
     // Get the DeckLink device
     deckLink = g_config.GetSelectedDeckLink();

@@ -62,7 +62,9 @@ BMDConfig::BMDConfig() :
 	m_deckLinkName(),
 	m_displayModeName(),
 	m_latencyDecodeLine(665),
-	m_doGenlock(0)
+	m_doGenlock(0),
+	m_debug(0),
+	m_silenceDetect(0)
 {
 }
 
@@ -80,7 +82,7 @@ bool BMDConfig::ParseArguments(int argc,  char** argv)
 	int		ch;
 	bool	displayHelp = false;
 
-	while ((ch = getopt(argc, argv, "l:d:?h3c:s:v:a:m:n:p:t:b:x:r:g:")) != -1)
+	while ((ch = getopt(argc, argv, "l:d:?h3c:s:v:a:m:n:p:t:b:x:r:g:z:y:")) != -1)
 	{
 		switch (ch)
 		{
@@ -97,6 +99,14 @@ bool BMDConfig::ParseArguments(int argc,  char** argv)
 				break;
 			case 'g':
 				m_doGenlock = atoi(optarg);
+				break;
+			case 'z':
+                                // Debug level
+				m_debug = atoi(optarg);
+				break;
+			case 'y':
+                                // Silence detect channel
+				m_silenceDetect = atoi(optarg);
 				break;
 
 			case 'c':
@@ -458,6 +468,8 @@ void BMDConfig::DisplayUsage(int status)
 
 bail:
 	fprintf(stderr,
+		"    -d <devicenum>\n"
+		"    -m <modenum>\n"
 		"    -p <pixelformat>\n"
 		"         0:  8 bit YUV (4:2:2) (default)\n"
 		"         1:  10 bit YUV (4:2:2)\n"
@@ -476,6 +488,8 @@ bail:
 		"    -l <line_num>        Line to detect time of day (default 665)\n"
 		"    -r <filename>        Filename a single frame will be written to every X frames\n"
 		"    -g 1                 Detect Genlock presence and exit\n"
+		"    -z 0                 Debug level (0-9, default 0)\n"
+		"    -y 2                 Detect silence on channel (1-2, default 0 - don't detect)\n"
 		"\n"
 	);
 
@@ -506,7 +520,8 @@ void BMDConfig::DisplayConfiguration()
 		" - Video Latency Detect line: %u\n"
 		" - Pixel format: %s\n"
 		" - Audio channels: %u\n"
-		" - Audio sample depth: %u bit \n",
+		" - Audio sample depth: %u bit \n"
+		" - Silence Detect Channel: %d \n",
 		m_deckLinkName,
 		m_displayModeName,
 		(m_inputFlags & bmdVideoInputDualStream3D) ? "3D" : "",
@@ -514,7 +529,8 @@ void BMDConfig::DisplayConfiguration()
                 m_latencyDecodeLine,
 		GetPixelFormatName(m_pixelFormat),
 		m_audioChannels,
-		m_audioSampleDepth
+		m_audioSampleDepth,
+                m_silenceDetect
 	);
 }
 

@@ -64,6 +64,8 @@ public:
 	unsigned int					m_latencyCalibrate;
 	unsigned int					m_latencyDecodeLine;
         bool                                            m_doGenlock;
+	unsigned int					m_debug;
+	unsigned int					m_silenceDetect;
 
 	BMDVideoInputFlags		m_inputFlags;
 	BMDPixelFormat			m_pixelFormat;
