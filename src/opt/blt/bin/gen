@@ -49,6 +49,7 @@ CH2WAVNODIP=1
 # 0 == Don't dip, always on
 # 1 == Dip tone, but not wav
 # 2 == Dip tone and wav
+# 3 == No tone at all
 if [[ "x$CH2NODIP" == "x2" ]]
 then
 CH2NODIP=1
@@ -57,6 +58,19 @@ fi
 if [[ "x$CH2NODIP" == "x1" ]]
 then
 CH2BOX=""
+fi
+
+CH2_LINE="
+[ir]aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=1,volume=enable='
+between(mod(floor(t*1000),4000),1000,1600)+
+between(mod(floor(t*1000),4000),2200,2800)
+':volume=$CH2NODIP [r];"
+
+
+if [[ "x$CH2NODIP" == "x3" ]]
+then
+CH2_LINE=" [ir]aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=1,volume=enable=1:volume=0[r];"
+CH2WAV="./silence.wav"
 fi
 
 echo "BLT Generator starting on $CARD/$HOST at `date`, at ${FRATE}fps with a TOD adjustment of ${TOD}ms"
@@ -86,10 +100,7 @@ aevalsrc=0.128*sin(1000*2*PI*t):s=48000:c=2:n=1920,asplit=16[il][ir][ic3][ic4][i
 [il]aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=1,volume=enable='
 between(mod(floor(t*1000),4000),0000,600)
 ':volume=0 [l];
-[ir]aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=1,volume=enable='
-between(mod(floor(t*1000),4000),1000,1600)+
-between(mod(floor(t*1000),4000),2200,2800)
-':volume=$CH2NODIP [r];
+$CH2_LINE
 [ic3]aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=1,volume=enable='
 between(mod(floor(t*1000),12000),3750,4000)+
 between(mod(floor(t*1000),12000),4250,4500)+
