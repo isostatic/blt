@@ -50,7 +50,16 @@ sub listDeviceById($) {
 # colorchart?
 my @backgroundOptions = qw/smptehdbars;SMPTE_HD_Bars smptebars;SMPTE_SD_Bars pal75bars;PAL_Bars_75% pal100bars;PAL_Bars_100% rgbtestsrc;RGB testsrc;Test_Source_1 testsrc2;Test_Source_2 yuvtestsrc;YUV_Test_Source colorspectrum;Colour_Spectrum color=c=blue;Splash_Blue color=c=red;Splash_Red color=c=green;Splash_Green/;
 my @gtypeOptions = qw/lin;Linear log;Logarithmic sqrt;Square_Root cbrt;Cube_Root/;
-my @ch2WavOptions = qw|./silence.wav ./1-20.wav ./0-99.wav|;
+my @ch2WavOptions = qw|./silence.wav|;
+
+opendir(DIR, "/opt/blt/bin");
+while (my $wav = readdir (DIR)) {
+    next if ($wav eq "silence.wav");
+    if ($wav =~ /\.wav$/) {
+        push(@ch2WavOptions, "./$wav");
+    }
+}
+closedir(DIR);
 
 
 my $curHost = `hostname`;
