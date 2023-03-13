@@ -24,7 +24,7 @@ if ($age > 30) {
     $frozenwarn = "frozen";
 }
 my $genlockState = `/opt/blt/bin/testgenlock`;
-$genlockState =~ s/Reference: //;
+$genlockState =~ s/.*Reference: //;
 my $genlockCSS = "";
 if ($genlockState =~ /NONE/) { $genlockCSS = "nogenlock"; }
 if ($genlockState =~ /Locked/) { $genlockCSS = "genlock"; }
