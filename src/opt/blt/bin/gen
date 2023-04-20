@@ -280,7 +280,8 @@ between(mod(floor(t*1000),12000),11250,11500)+
 between(mod(floor(t*1000),4000),1000,1600)+
 between(mod(floor(t*1000),4000),2200,2800)
 ':volume=$CH2WAVNODIP [wav];
-[r][wav]amix=inputs=2:duration=longest[rm];
+[r]volume=6dB[rboost];
+[rboost][wav]amix=inputs=2:duration=longest[rm];
 [l][rm][c3][c4][c5][c6][c7][c8][c9][c10][c11][c12][c13][c14][c15][c16]amerge=inputs=16
 " \
 -f decklink -ar 48000 -acodec pcm_s16le -pix_fmt uyvy422 -s 1920x1080 -r $PIRATE -t 1800000 "$CARD" #> /dev/null 2>&1
