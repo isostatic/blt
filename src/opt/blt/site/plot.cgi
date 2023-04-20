@@ -17,7 +17,16 @@ fi
 TMP="$WORKDIR/dttmp.log"
 FIN="$WORKDIR/dt.log"
 #cat `find $WORKDIR -mmin -600 -name 2*.log` |grep ^INFO:.2|cut -d ' ' -f 2,3,8,16 |sed -e 's/ /T/'|sort|tail -4000 > $TMP
-cat `find $WORKDIR -mmin -6000 -name 2*.log` |grep ^INFO:.2|cut -d ' ' -f 2,3,8,16 |sed -e 's/ /T/'|sort|tail -$START|head -$NUM > $TMP
+> $TMP
+if [[ `find $WORKDIR -mmin -6000 -name 2*.log | grep log` ]]
+then
+	cat `find $WORKDIR -mmin -6000 -name 2*.log` |grep ^INFO:.2|cut -d ' ' -f 2,3,8,16 |sed -e 's/ /T/'|sort|tail -$START|head -$NUM > $TMP
+fi
+if [[ ! -s $TMP ]]
+then
+	cat /opt/blt/site/noData.png
+	exit
+fi
 #echo "START $START"
 #echo "NUM $NUM"
 #head -1 $TMP
