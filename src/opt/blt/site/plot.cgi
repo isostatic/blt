@@ -20,7 +20,7 @@ FIN="$WORKDIR/dt.log"
 > $TMP
 if [[ `find $WORKDIR -mmin -6000 -name 2*.log | grep log` ]]
 then
-	cat `find $WORKDIR -mmin -6000 -name 2*.log` |grep ^INFO:.2|cut -d ' ' -f 2,3,8,16 |sed -e 's/ /T/'|sort|tail -$START|head -$NUM > $TMP
+	cat `find $WORKDIR -mmin -6000 -name 2*.log` |grep ^INFO:.2|cut -d ' ' -f 2,3,8,16 |sed -e 's/ /T/'|sort|tail -$START|head -$NUM|grep -v "pre" > $TMP
 fi
 if [[ ! -s $TMP ]]
 then
